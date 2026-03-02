@@ -408,7 +408,7 @@ function checkMonsterCollisions() {
     if (d < player.r + e.r) {
       if (damageCooldown <= 0) {
         health -= 20;
-        damageCooldown = 30; // 30 frames delay
+        damageCooldown = 30; // 30 frames delay so player doesn't immedietly lose more health
       }
     }
   }
