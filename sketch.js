@@ -63,8 +63,6 @@ function draw() {
   else if (scene === SCENES.GAME) drawGame();
   else if (scene === SCENES.END) drawEnd();
 
-  drawHealthBar();
-
   if (damageCooldown > 0) {
     damageCooldown--;
   }
@@ -123,7 +121,7 @@ function drawGame() {
   }
 
   if (health <= 0) {
-    endMessage = "Game Over! A monster got you too many times.";
+    endMessage = "Game Over! A monster got you and you have no more health.";
     scene = SCENES.END;
   }
 
@@ -156,6 +154,9 @@ function drawGame() {
 
   // Optional HUD (on screen, not world)
   drawHUD();
+
+  // Draws the health Bar at the top right corner
+  drawHealthBar();
 }
 
 /************************************************************
@@ -406,7 +407,7 @@ function checkMonsterCollisions() {
 
     if (d < player.r + e.r) {
       if (damageCooldown <= 0) {
-        health -= 10;
+        health -= 20;
         damageCooldown = 30; // 30 frames delay
       }
     }
