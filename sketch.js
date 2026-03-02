@@ -64,6 +64,10 @@ function draw() {
   else if (scene === SCENES.END) drawEnd();
 
   drawHealthBar();
+
+  if (damageCooldown > 0) {
+    damageCooldown--;
+  }
 }
 
 /************************************************************
@@ -118,8 +122,8 @@ function drawGame() {
     scene = SCENES.END;
   }
 
-  if (playerHitsEnemy()) {
-    endMessage = "Game Over! A monster got you.";
+  if (health <= 0) {
+    endMessage = "Game Over! A monster got you too many times.";
     scene = SCENES.END;
   }
 
@@ -216,6 +220,8 @@ function updatePlayer() {
   // Keep inside world bounds
   player.x = constrain(player.x, player.r, WORLD_W - player.r);
   player.y = constrain(player.y, player.r, WORLD_H - player.r);
+
+  checkMonsterCollisions(); //checks if players collide with monsters to reduce health
 }
 
 /************************************************************
@@ -346,6 +352,8 @@ function drawHUD() {
 function restartGame() {
   player.x = 120;
   player.y = 120;
+  health = maxHealth; // reset health
+  damageCooldown = 0;
   spawnEnemies();
   scene = SCENES.GAME;
 }
@@ -390,4 +398,17 @@ function drawHealthBar() {
   noFill();
   stroke(255);
   rect(x, y, barWidth, barHeight);
+}
+
+function checkMonsterCollisions() {
+  for (const e of enemies) {
+    const d = dist(player.x, player.y, e.x, e.y);
+
+    if (d < player.r + e.r) {
+      if (damageCooldown <= 0) {
+        health -= 10;
+        damageCooldown = 30; // 30 frames delay
+      }
+    }
+  }
 }
