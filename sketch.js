@@ -175,6 +175,9 @@ function drawEnd() {
     width / 2,
     height / 2 + 25,
   );
+
+  // Draws the health Bar at the top right corner
+  drawHealthBar();
 }
 
 /************************************************************
