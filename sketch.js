@@ -42,6 +42,9 @@ let health = 100;
 let maxHealth = 100;
 let damageCooldown = 0; // prevents losing health too fast
 
+// Wall damage tuning
+let wallDamage = 10; // health lost per wall bump (tune as needed)
+
 /************************************************************
  * 1) SETUP
  ************************************************************/
@@ -114,14 +117,9 @@ function drawGame() {
   updateCamera();
   updateEnemies();
 
-  // Check win/lose
-  if (circleHitsAnyWall(player.x, player.y, player.r)) {
-    endMessage = "Game Over! You touched a chemical wall.";
-    scene = SCENES.END;
-  }
-
+  // Check lose (health only) + win
   if (health <= 0) {
-    endMessage = "Game Over! A monster got you and you have no more health.";
+    endMessage = "Game Over! You ran out of health.";
     scene = SCENES.END;
   }
 
@@ -196,8 +194,18 @@ function keyPressed() {
 }
 
 /************************************************************
- * 8) PLAYER MOVEMENT + COLLISION
- *    (Simple: try move, if it hits wall, cancel that move)
+ * 8) DAMAGE HELPER
+ ************************************************************/
+function applyDamage(amount) {
+  if (damageCooldown <= 0) {
+    health = max(0, health - amount);
+    damageCooldown = 30; // 30 frames delay so player doesn't immediately lose more health
+  }
+}
+
+/************************************************************
+ * 9) PLAYER MOVEMENT + COLLISION
+ *    (Try move, if it hits wall, cancel + damage)
  ************************************************************/
 function updatePlayer() {
   let dx = 0,
@@ -214,22 +222,32 @@ function updatePlayer() {
   if (right) dx += player.speed;
 
   // Try X move
-  player.x += dx;
-  if (circleHitsAnyWall(player.x, player.y, player.r)) player.x -= dx;
+  if (dx !== 0) {
+    player.x += dx;
+    if (circleHitsAnyWall(player.x, player.y, player.r)) {
+      player.x -= dx; // cancel move
+      applyDamage(wallDamage); // wall damage
+    }
+  }
 
   // Try Y move
-  player.y += dy;
-  if (circleHitsAnyWall(player.x, player.y, player.r)) player.y -= dy;
+  if (dy !== 0) {
+    player.y += dy;
+    if (circleHitsAnyWall(player.x, player.y, player.r)) {
+      player.y -= dy; // cancel move
+      applyDamage(wallDamage); // wall damage
+    }
+  }
 
   // Keep inside world bounds
   player.x = constrain(player.x, player.r, WORLD_W - player.r);
   player.y = constrain(player.y, player.r, WORLD_H - player.r);
 
-  checkMonsterCollisions(); //checks if players collide with monsters to reduce health
+  checkMonsterCollisions(); // checks if players collide with monsters to reduce health
 }
 
 /************************************************************
- * 9) CAMERA MOVEMENT (center on player)
+ * 10) CAMERA MOVEMENT (center on player)
  ************************************************************/
 function updateCamera() {
   cam.x = player.x - width / 2;
@@ -240,8 +258,7 @@ function updateCamera() {
 }
 
 /************************************************************
- * 10) MAZE CREATION (WALLS)
- *     Keep it basic: hardcode rectangles for now.
+ * 11) MAZE CREATION (WALLS)
  ************************************************************/
 function buildMaze() {
   walls = [];
@@ -261,9 +278,7 @@ function buildMaze() {
 }
 
 /************************************************************
- * 11) COLLISION RESULTS
- *     (Right now: touching a wall = instant lose)
- *     Your group can change this to "damage" or "reset"
+ * 12) COLLISION RESULTS
  ************************************************************/
 function circleHitsAnyWall(cx, cy, cr) {
   for (const w of walls) {
@@ -273,7 +288,7 @@ function circleHitsAnyWall(cx, cy, cr) {
 }
 
 /************************************************************
- * 12) ENEMIES (simple bouncing movement)
+ * 13) ENEMIES (simple bouncing movement)
  ************************************************************/
 function spawnEnemies() {
   enemies = [
@@ -300,16 +315,8 @@ function updateEnemies() {
   }
 }
 
-function playerHitsEnemy() {
-  for (const e of enemies) {
-    const d = dist(player.x, player.y, e.x, e.y);
-    if (d < player.r + e.r) return true;
-  }
-  return false;
-}
-
 /************************************************************
- * 13) WIN CONDITION (goal zone)
+ * 14) WIN CONDITION (goal zone)
  ************************************************************/
 function drawGoal() {
   noStroke();
@@ -318,7 +325,7 @@ function drawGoal() {
 }
 
 /************************************************************
- * 14) DRAWING FUNCTIONS
+ * 15) DRAWING FUNCTIONS
  ************************************************************/
 function drawWorldBounds() {
   // Optional: background grid or world indicator
@@ -351,7 +358,7 @@ function drawHUD() {
 }
 
 /************************************************************
- * 15) RESTART
+ * 16) RESTART
  ************************************************************/
 function restartGame() {
   player.x = 120;
@@ -363,7 +370,7 @@ function restartGame() {
 }
 
 /************************************************************
- * 16) HELPER COLLISION MATH
+ * 17) HELPER COLLISION MATH
  ************************************************************/
 // Circle vs Rect collision (classic clamp method)
 function circleRectCollision(cx, cy, cr, rx, ry, rw, rh) {
@@ -380,7 +387,7 @@ function rectContainsCircle(rx, ry, rw, rh, cx, cy, cr) {
 }
 
 /************************************************************
- * 17) Health Bar
+ * 18) Health Bar
  ************************************************************/
 function drawHealthBar() {
   let barWidth = 200;
@@ -389,6 +396,7 @@ function drawHealthBar() {
   let y = 5;
 
   // Background (empty health)
+  noStroke();
   fill(100);
   rect(x, y, barWidth, barHeight);
 
@@ -404,15 +412,15 @@ function drawHealthBar() {
   rect(x, y, barWidth, barHeight);
 }
 
+/************************************************************
+ * 19) MONSTER COLLISIONS (damage)
+ ************************************************************/
 function checkMonsterCollisions() {
   for (const e of enemies) {
     const d = dist(player.x, player.y, e.x, e.y);
 
     if (d < player.r + e.r) {
-      if (damageCooldown <= 0) {
-        health -= 20;
-        damageCooldown = 30; // 30 frames delay so player doesn't immedietly lose more health
-      }
+      applyDamage(20);
     }
   }
 }
