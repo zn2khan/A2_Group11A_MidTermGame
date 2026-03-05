@@ -9,7 +9,10 @@ const SCENES = {
 };
 
 let scene = SCENES.START;
+let damageText = "";
 let endMessage = ""; // "You escaped!" or "Game Over!"
+
+let damageTextTimer = 0;
 
 // World settings (bigger than screen so camera matters)
 const VIEW_W = 800;
@@ -153,6 +156,14 @@ function drawGame() {
   // Optional HUD (on screen, not world)
   drawHUD();
 
+  if (damageTextTimer > 0) {
+    fill(255, 0, 0);
+    textSize(20);
+    textAlign(CENTER);
+    text(damageText, width / 2, 60);
+    damageTextTimer--;
+  }
+
   // Draws the health Bar at the top right corner
   drawHealthBar();
 }
@@ -196,10 +207,13 @@ function keyPressed() {
 /************************************************************
  * 8) DAMAGE HELPER
  ************************************************************/
-function applyDamage(amount) {
+function applyDamage(amount, source = "") {
   if (damageCooldown <= 0) {
     health = max(0, health - amount);
-    damageCooldown = 30; // 30 frames delay so player doesn't immediately lose more health
+    damageCooldown = 30;
+
+    damageText = "-" + amount + " health!" + source;
+    damageTextTimer = 40; // how long text stays
   }
 }
 
@@ -226,7 +240,7 @@ function updatePlayer() {
     player.x += dx;
     if (circleHitsAnyWall(player.x, player.y, player.r)) {
       player.x -= dx; // cancel move
-      applyDamage(wallDamage); // wall damage
+      wallDamage, "(Chemical)"; // wall damage
     }
   }
 
@@ -420,7 +434,7 @@ function checkMonsterCollisions() {
     const d = dist(player.x, player.y, e.x, e.y);
 
     if (d < player.r + e.r) {
-      applyDamage(20);
+      applyDamage(20, " (Enemy Collision!)");
     }
   }
 }
