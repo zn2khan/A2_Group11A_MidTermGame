@@ -240,7 +240,7 @@ function updatePlayer() {
     player.x += dx;
     if (circleHitsAnyWall(player.x, player.y, player.r)) {
       player.x -= dx; // cancel move
-      wallDamage, "(Chemical)"; // wall damage
+      applyDamage(wallDamage); // wall damage
     }
   }
 
