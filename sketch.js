@@ -194,9 +194,6 @@ function drawEnd() {
     width / 2,
     height / 2 + 25,
   );
-
-  // Draws the health Bar at the top right corner
-  drawHealthBar();
 }
 
 /************************************************************
@@ -415,9 +412,9 @@ function rectContainsCircle(rx, ry, rw, rh, cx, cy, cr) {
  ************************************************************/
 function drawHealthBar() {
   let barWidth = 200;
-  let barHeight = 20;
+  let barHeight = 30;
   let x = width - barWidth - 10;
-  let y = 5;
+  let y = 1;
 
   if (health === 3) {
     image(health3, x, y, barWidth, barHeight);
@@ -426,6 +423,12 @@ function drawHealthBar() {
   } else if (health === 1) {
     image(health1, x, y, barWidth, barHeight);
   }
+
+  // HealthBar Caption
+  fill(0, 255, 0);
+  noStroke();
+  textSize(12);
+  text("Health: lives player has left", x + 20, y + barHeight + 15);
 }
 
 /************************************************************
