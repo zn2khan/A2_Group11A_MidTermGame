@@ -45,9 +45,9 @@ let health = 3;
 let maxHealth = 3;
 let damageCooldown = 0; // prevents losing health too fast
 
-let health3;
-let health2;
-let health1;
+let health3; // 3 lives left (full bar)
+let health2; // 2 lives left
+let health1; // 1 life left
 
 // Wall damage tuning
 let wallDamage = 1; // health lost per wall bump (tune as needed)
