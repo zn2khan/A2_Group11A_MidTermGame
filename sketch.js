@@ -41,16 +41,26 @@ let goal = { x: 1450, y: 850, w: 80, h: 80 };
 let enemies = [];
 
 // Health Bar
-let health = 100;
-let maxHealth = 100;
+let health = 3;
+let maxHealth = 3;
 let damageCooldown = 0; // prevents losing health too fast
 
+let health3;
+let health2;
+let health1;
+
 // Wall damage tuning
-let wallDamage = 10; // health lost per wall bump (tune as needed)
+let wallDamage = 1; // health lost per wall bump (tune as needed)
 
 /************************************************************
  * 1) SETUP
  ************************************************************/
+function preload() {
+  health3 = loadImage("assets/images/fullHealthBar.png"); // full health
+  health2 = loadImage("assets/images/2LifeHealthBar.png"); // 2 lives left
+  health1 = loadImage("assets/images/1LifeHealthBar.png"); // 1 life left
+}
+
 function setup() {
   createCanvas(VIEW_W, VIEW_H);
 
@@ -409,21 +419,13 @@ function drawHealthBar() {
   let x = width - barWidth - 10;
   let y = 5;
 
-  // Background (empty health)
-  noStroke();
-  fill(100);
-  rect(x, y, barWidth, barHeight);
-
-  // Health amount
-  let currentWidth = map(health, 0, maxHealth, 0, barWidth);
-
-  fill(0, 255, 0); // green
-  rect(x, y, currentWidth, barHeight);
-
-  // Border
-  noFill();
-  stroke(255);
-  rect(x, y, barWidth, barHeight);
+  if (health === 3) {
+    image(health3, x, y, barWidth, barHeight);
+  } else if (health === 2) {
+    image(health2, x, y, barWidth, barHeight);
+  } else if (health === 1) {
+    image(health1, x, y, barWidth, barHeight);
+  }
 }
 
 /************************************************************
@@ -434,7 +436,7 @@ function checkMonsterCollisions() {
     const d = dist(player.x, player.y, e.x, e.y);
 
     if (d < player.r + e.r) {
-      applyDamage(20, " (Enemy Collision!)");
+      applyDamage(1, " (Enemy Collision!)");
     }
   }
 }
