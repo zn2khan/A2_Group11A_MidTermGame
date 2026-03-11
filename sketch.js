@@ -20,16 +20,28 @@ const VIEW_H = 500;
 const WORLD_W = 1600;
 const WORLD_H = 1000;
 
+// Sprites
+let sprites = {};
+
 // Player
 let player = {
   x: 120,
   y: 120,
-  r: 14,
+  r: 14,          // collision radius
   speed: 3,
 
-  // animation / facing
-  facing: "down",   // "up", "down", "left", "right"
+  // sprite frame size
+  w: 18,
+  h: 29,
+  scale: 3,
+
+  direction: "down",
   moving: false,
+
+  frameIndex: 0,
+  frameDelay: 8,
+  frameCounter: 0,
+  currentAnimName: "down_idle"
 };
 
 // Camera (we’ll center it on the player)
@@ -54,82 +66,43 @@ let health2; // 2 lives left
 let health1; // 1 life left
 
 // Wall damage tuning
-let wallDamage = 1; // health lost per wall bump (tune as needed)
+let wallDamage = 1; // health lost per wall bump
 
 /************************************************************
- * PLAYER SPRITES / ANIMATION
- ************************************************************/
-let idleDownSheet;
-let idleUpSheet;
-let idleLeftSheet;
-let idleRightSheet;
-
-let runDownSheet;
-let runUpSheet;
-let runLeftSheet;
-let runRightSheet;
-
-// frame info based on your uploaded sheets
-const SPRITE_FRAME_W = 18;
-const SPRITE_FRAME_H = 29;
-
-// draw size on canvas
-const PLAYER_DRAW_W = 36;
-const PLAYER_DRAW_H = 58;
-
-// animation timing
-let animCounter = 0;
-const ANIM_SPEED = 8; // lower = faster
-
-const anims = {
-  idleDown: { sheet: null, frames: 7 },
-  idleUp: { sheet: null, frames: 7 },
-  idleLeft: { sheet: null, frames: 2 },
-  idleRight: { sheet: null, frames: 2 },
-  runDown: { sheet: null, frames: 8 },
-  runUp: { sheet: null, frames: 8 },
-  runLeft: { sheet: null, frames: 8 },
-  runRight: { sheet: null, frames: 8 },
-};
-
-/************************************************************
- * 1) SETUP
+ * 1) PRELOAD
  ************************************************************/
 function preload() {
+  // Health bars
   health3 = loadImage("assets/images/fullHealthBar.png");
   health2 = loadImage("assets/images/2LifeHealthBar.png");
   health1 = loadImage("assets/images/1LifeHealthBar.png");
 
-  // character sprite sheets
-  idleDownSheet = loadImage("assets/images/idle_animation.png");
-  idleUpSheet = loadImage("assets/images/idle_animation_backside.png");
-  idleLeftSheet = loadImage("assets/images/idle_animation_L.png");
-  idleRightSheet = loadImage("assets/images/idle_animation_R.png");
+  // Running animations
+  sprites.downRun = loadImage("assets/images/down_run_animation.png");
+  sprites.leftRun = loadImage("assets/images/left_run_animation.png");
+  sprites.rightRun = loadImage("assets/images/right_run_animation.png");
+  sprites.upRun = loadImage("assets/images/up_run_animation.png");
 
-  runDownSheet = loadImage("assets/images/down_run_animation.png");
-  runUpSheet = loadImage("assets/images/up_run_animation.png");
-  runLeftSheet = loadImage("assets/images/left_run_animation.png");
-  runRightSheet = loadImage("assets/images/right_run_animation.png");
+  // Idle animations
+  sprites.idleDown = loadImage("assets/images/idle_animation.png");
+  sprites.idleUp = loadImage("assets/images/idle_animation_backside.png");
+  sprites.idleLeft = loadImage("assets/images/idle_animation_L.png");
+  sprites.idleRight = loadImage("assets/images/idle_animation_R.png");
 }
 
+/************************************************************
+ * 2) SETUP
+ ************************************************************/
 function setup() {
   createCanvas(VIEW_W, VIEW_H);
-
-  anims.idleDown.sheet = idleDownSheet;
-  anims.idleUp.sheet = idleUpSheet;
-  anims.idleLeft.sheet = idleLeftSheet;
-  anims.idleRight.sheet = idleRightSheet;
-  anims.runDown.sheet = runDownSheet;
-  anims.runUp.sheet = runUpSheet;
-  anims.runLeft.sheet = runLeftSheet;
-  anims.runRight.sheet = runRightSheet;
+  noSmooth();
 
   buildMaze();
   spawnEnemies();
 }
 
 /************************************************************
- * 2) MAIN DRAW LOOP (SCENE MANAGER)
+ * 3) MAIN DRAW LOOP (SCENE MANAGER)
  ************************************************************/
 function draw() {
   background(20);
@@ -145,7 +118,7 @@ function draw() {
 }
 
 /************************************************************
- * 3) START PAGE
+ * 4) START PAGE
  ************************************************************/
 function drawStart() {
   noStroke();
@@ -160,7 +133,7 @@ function drawStart() {
 }
 
 /************************************************************
- * 4) INSTRUCTIONS PAGE
+ * 5) INSTRUCTIONS PAGE
  ************************************************************/
 function drawInstructions() {
   noStroke();
@@ -172,26 +145,27 @@ function drawInstructions() {
   textSize(14);
   text(
     "- Use WASD or Arrow Keys to move\n" +
-      "- Movement is only up, down, left, or right\n" +
+      "- Character only moves up, down, left, or right\n" +
       "- Avoid walls (they’re chemical hazards)\n" +
       "- Avoid monsters in the maze\n" +
       "- Reach the green goal zone to win\n\n" +
       "Press B to go back",
     40,
-    80,
+    80
   );
 }
 
 /************************************************************
- * 5) GAME LOOP (UPDATE + DRAW)
+ * 6) GAME LOOP (UPDATE + DRAW)
  ************************************************************/
 function drawGame() {
   // Update
   updatePlayer();
+  updateAnimation();
   updateCamera();
   updateEnemies();
 
-  // Check lose (health only) + win
+  // Check lose + win
   if (health <= 0) {
     endMessage = "Game Over! You ran out of health.";
     scene = SCENES.END;
@@ -205,7 +179,7 @@ function drawGame() {
       goal.h,
       player.x,
       player.y,
-      player.r,
+      player.r
     )
   ) {
     endMessage = "You escaped! 🎉";
@@ -224,6 +198,7 @@ function drawGame() {
 
   pop();
 
+  // HUD
   drawHUD();
 
   if (damageTextTimer > 0) {
@@ -238,7 +213,7 @@ function drawGame() {
 }
 
 /************************************************************
- * 6) FINAL / END SCREEN
+ * 7) FINAL / END SCREEN
  ************************************************************/
 function drawEnd() {
   noStroke();
@@ -251,12 +226,12 @@ function drawEnd() {
   text(
     "Press R to restart (or B for Start Screen)",
     width / 2,
-    height / 2 + 25,
+    height / 2 + 25
   );
 }
 
 /************************************************************
- * 7) INPUT HANDLING
+ * 8) INPUT HANDLING
  ************************************************************/
 function keyPressed() {
   if (scene === SCENES.START) {
@@ -271,7 +246,7 @@ function keyPressed() {
 }
 
 /************************************************************
- * 8) DAMAGE HELPER
+ * 9) DAMAGE HELPER
  ************************************************************/
 function applyDamage(amount, source = "") {
   if (damageCooldown <= 0) {
@@ -284,39 +259,34 @@ function applyDamage(amount, source = "") {
 }
 
 /************************************************************
- * 9) PLAYER MOVEMENT + COLLISION
- *    Strict 4-direction movement, no diagonal
+ * 10) PLAYER MOVEMENT + COLLISION
+ *     Uses your smoother movement structure
  ************************************************************/
 function updatePlayer() {
   let dx = 0;
   let dy = 0;
 
-  const up = keyIsDown(UP_ARROW) || keyIsDown(87); // W
+  const up = keyIsDown(UP_ARROW) || keyIsDown(87);    // W
   const down = keyIsDown(DOWN_ARROW) || keyIsDown(83); // S
   const left = keyIsDown(LEFT_ARROW) || keyIsDown(65); // A
   const right = keyIsDown(RIGHT_ARROW) || keyIsDown(68); // D
 
-  player.moving = false;
-
-  // PRIORITY: vertical first, then horizontal
-  // this prevents diagonal movement
+  // No diagonal movement: vertical priority first, then horizontal
   if (up && !down) {
     dy = -player.speed;
-    player.facing = "up";
-    player.moving = true;
+    player.direction = "up";
   } else if (down && !up) {
     dy = player.speed;
-    player.facing = "down";
-    player.moving = true;
+    player.direction = "down";
   } else if (left && !right) {
     dx = -player.speed;
-    player.facing = "left";
-    player.moving = true;
+    player.direction = "left";
   } else if (right && !left) {
     dx = player.speed;
-    player.facing = "right";
-    player.moving = true;
+    player.direction = "right";
   }
+
+  player.moving = (dx !== 0 || dy !== 0);
 
   // Try X move
   if (dx !== 0) {
@@ -336,7 +306,7 @@ function updatePlayer() {
     }
   }
 
-  // Keep inside world bounds
+  // Keep player inside world bounds
   player.x = constrain(player.x, player.r, WORLD_W - player.r);
   player.y = constrain(player.y, player.r, WORLD_H - player.r);
 
@@ -344,7 +314,69 @@ function updatePlayer() {
 }
 
 /************************************************************
- * 10) CAMERA MOVEMENT (center on player)
+ * 11) ANIMATION UPDATE
+ ************************************************************/
+function updateAnimation() {
+  let anim = getCurrentAnimation();
+  let animName = player.moving
+    ? `${player.direction}_run`
+    : `${player.direction}_idle`;
+
+  if (animName !== player.currentAnimName) {
+    player.currentAnimName = animName;
+    player.frameIndex = 0;
+    player.frameCounter = 0;
+  }
+
+  player.frameCounter++;
+
+  if (player.frameCounter >= player.frameDelay) {
+    player.frameCounter = 0;
+    player.frameIndex++;
+
+    if (player.frameIndex >= anim.frames) {
+      player.frameIndex = 0;
+    }
+  }
+}
+
+/************************************************************
+ * 12) GET CURRENT ANIMATION
+ ************************************************************/
+function getCurrentAnimation() {
+  if (player.moving) {
+    if (player.direction === "down") {
+      return { sheet: sprites.downRun, frames: 8, frameW: 18, frameH: 29 };
+    }
+    if (player.direction === "up") {
+      return { sheet: sprites.upRun, frames: 8, frameW: 18, frameH: 29 };
+    }
+    if (player.direction === "left") {
+      return { sheet: sprites.leftRun, frames: 8, frameW: 18, frameH: 29 };
+    }
+    if (player.direction === "right") {
+      return { sheet: sprites.rightRun, frames: 8, frameW: 18, frameH: 29 };
+    }
+  } else {
+    if (player.direction === "down") {
+      return { sheet: sprites.idleDown, frames: 7, frameW: 18, frameH: 29 };
+    }
+    if (player.direction === "up") {
+      return { sheet: sprites.idleUp, frames: 7, frameW: 18, frameH: 29 };
+    }
+    if (player.direction === "left") {
+      return { sheet: sprites.idleLeft, frames: 2, frameW: 18, frameH: 29 };
+    }
+    if (player.direction === "right") {
+      return { sheet: sprites.idleRight, frames: 2, frameW: 18, frameH: 29 };
+    }
+  }
+
+  return { sheet: sprites.idleDown, frames: 7, frameW: 18, frameH: 29 };
+}
+
+/************************************************************
+ * 13) CAMERA MOVEMENT (center on player)
  ************************************************************/
 function updateCamera() {
   cam.x = player.x - width / 2;
@@ -355,16 +387,18 @@ function updateCamera() {
 }
 
 /************************************************************
- * 11) MAZE CREATION (WALLS)
+ * 14) MAZE CREATION (WALLS)
  ************************************************************/
 function buildMaze() {
   walls = [];
 
+  // Outer border walls
   walls.push({ x: 0, y: 0, w: WORLD_W, h: 30 });
   walls.push({ x: 0, y: WORLD_H - 30, w: WORLD_W, h: 30 });
   walls.push({ x: 0, y: 0, w: 30, h: WORLD_H });
   walls.push({ x: WORLD_W - 30, y: 0, w: 30, h: WORLD_H });
 
+  // Internal walls
   walls.push({ x: 100, y: 200, w: 600, h: 30 });
   walls.push({ x: 300, y: 350, w: 30, h: 400 });
   walls.push({ x: 500, y: 500, w: 500, h: 30 });
@@ -373,7 +407,7 @@ function buildMaze() {
 }
 
 /************************************************************
- * 12) COLLISION RESULTS
+ * 15) COLLISION RESULTS
  ************************************************************/
 function circleHitsAnyWall(cx, cy, cr) {
   for (const w of walls) {
@@ -383,7 +417,7 @@ function circleHitsAnyWall(cx, cy, cr) {
 }
 
 /************************************************************
- * 13) ENEMIES (simple bouncing movement)
+ * 16) ENEMIES (simple bouncing movement)
  ************************************************************/
 function spawnEnemies() {
   enemies = [
@@ -408,7 +442,7 @@ function updateEnemies() {
 }
 
 /************************************************************
- * 14) WIN CONDITION (goal zone)
+ * 17) WIN CONDITION (goal zone)
  ************************************************************/
 function drawGoal() {
   noStroke();
@@ -417,10 +451,10 @@ function drawGoal() {
 }
 
 /************************************************************
- * 15) DRAWING FUNCTIONS
+ * 18) DRAWING FUNCTIONS
  ************************************************************/
 function drawWorldBounds() {
-  // Optional
+  // optional
 }
 
 function drawMaze() {
@@ -430,45 +464,25 @@ function drawMaze() {
 }
 
 function drawPlayer() {
-  const anim = getCurrentAnimation();
-  const frameIndex = floor(animCounter / ANIM_SPEED) % anim.frames;
-  const sx = frameIndex * SPRITE_FRAME_W;
-  const sy = 0;
+  let anim = getCurrentAnimation();
+
+  let sx = player.frameIndex * anim.frameW;
+  let sy = 0;
+  let sw = anim.frameW;
+  let sh = anim.frameH;
+
+  let dw = anim.frameW * player.scale;
+  let dh = anim.frameH * player.scale;
+
+  // centered on player.x/y so collision still matches your original system
+  let dx = floor(player.x - dw / 2);
+  let dy = floor(player.y - dh / 2);
 
   image(
     anim.sheet,
-    player.x - PLAYER_DRAW_W / 2,
-    player.y - PLAYER_DRAW_H / 2,
-    PLAYER_DRAW_W,
-    PLAYER_DRAW_H,
-    sx,
-    sy,
-    SPRITE_FRAME_W,
-    SPRITE_FRAME_H,
+    dx, dy, dw, dh,
+    sx, sy, sw, sh
   );
-
-  if (player.moving) {
-    animCounter++;
-  } else {
-    // still animate idle, just more slowly
-    if (frameCount % 12 === 0) animCounter++;
-  }
-}
-
-function getCurrentAnimation() {
-  if (player.moving) {
-    if (player.facing === "up") return anims.runUp;
-    if (player.facing === "down") return anims.runDown;
-    if (player.facing === "left") return anims.runLeft;
-    if (player.facing === "right") return anims.runRight;
-  } else {
-    if (player.facing === "up") return anims.idleUp;
-    if (player.facing === "down") return anims.idleDown;
-    if (player.facing === "left") return anims.idleLeft;
-    if (player.facing === "right") return anims.idleRight;
-  }
-
-  return anims.idleDown;
 }
 
 function drawEnemies() {
@@ -486,24 +500,25 @@ function drawHUD() {
 }
 
 /************************************************************
- * 16) RESTART
+ * 19) RESTART
  ************************************************************/
 function restartGame() {
   player.x = 120;
   player.y = 120;
-  player.facing = "down";
+  player.direction = "down";
   player.moving = false;
+  player.frameIndex = 0;
+  player.frameCounter = 0;
+  player.currentAnimName = "down_idle";
 
   health = maxHealth;
   damageCooldown = 0;
-  animCounter = 0;
-
   spawnEnemies();
   scene = SCENES.GAME;
 }
 
 /************************************************************
- * 17) HELPER COLLISION MATH
+ * 20) HELPER COLLISION MATH
  ************************************************************/
 function circleRectCollision(cx, cy, cr, rx, ry, rw, rh) {
   const closestX = constrain(cx, rx, rx + rw);
@@ -518,7 +533,7 @@ function rectContainsCircle(rx, ry, rw, rh, cx, cy, cr) {
 }
 
 /************************************************************
- * 18) Health Bar
+ * 21) HEALTH BAR
  ************************************************************/
 function drawHealthBar() {
   let barWidth = 200;
@@ -541,7 +556,7 @@ function drawHealthBar() {
 }
 
 /************************************************************
- * 19) MONSTER COLLISIONS (damage)
+ * 22) MONSTER COLLISIONS (damage)
  ************************************************************/
 function checkMonsterCollisions() {
   for (const e of enemies) {
