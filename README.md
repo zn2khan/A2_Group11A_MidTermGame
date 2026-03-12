@@ -6,8 +6,9 @@
 experience
 4. Setup and Interaction Instructions: How to run and play the game
 5. Iteration Notes
+
     a. Post-Playtest: Changes made based on playtesting is that we added high-fidelity illustrations/designs to our game, added a way to view               instructions from the main game screen, caption underneath the healthBar along with visual cue for clearer player understanding, added sound, a        cut-scene at the begining of the game, and more monsters to increase the difficulty of the game.
 
    b. Post-Showcase: Two planned improvements
-6. Assets: List and attribute all non-original assets with in-text citations
-7. References:
+7. Assets: List and attribute all non-original assets with in-text citations
+8. References:
