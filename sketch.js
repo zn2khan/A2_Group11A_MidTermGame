@@ -25,23 +25,6 @@ const WORLD_H = 1000;
 // Sprites
 let sprites = {};
 
-<<<<<<< Updated upstream
-=======
-// Background + pipe texture + monster sprite
-let gameBg;
-let pipeImg;
-let monsterSheet;
-
-// Monster animation settings
-const MONSTER_FRAME_W = 29;
-const MONSTER_FRAME_H = 29;
-const MONSTER_FRAMES = 6;
-const MONSTER_SCALE = 2;
-let monsterFrameIndex = 0;
-let monsterFrameCounter = 0;
-let monsterFrameDelay = 10;
-
->>>>>>> Stashed changes
 // Player
 let player = {
   x: 120,
@@ -107,18 +90,6 @@ function preload() {
   sprites.idleUp = loadImage("assets/images/idle_animation_backside.png");
   sprites.idleLeft = loadImage("assets/images/idle_animation_L.png");
   sprites.idleRight = loadImage("assets/images/idle_animation_R.png");
-<<<<<<< Updated upstream
-=======
-
-  // Gameplay background
-  gameBg = loadImage("assets/images/background.png");
-
-  // Pipe texture for walls
-  pipeImg = loadImage("assets/images/pipe.png");
-
-  // Monster sprite sheet
-  monsterSheet = loadImage("assets/images/monster.png");
->>>>>>> Stashed changes
 }
 
 /************************************************************
@@ -193,7 +164,6 @@ function drawGame() {
   // Update
   updatePlayer();
   updateAnimation();
-  updateMonsterAnimation();
   updateCamera();
   updateEnemies();
 
@@ -346,7 +316,7 @@ function updatePlayer() {
 }
 
 /************************************************************
- * 11) PLAYER ANIMATION UPDATE
+ * 11) ANIMATION UPDATE
  ************************************************************/
 function updateAnimation() {
   let anim = getCurrentAnimation();
@@ -373,23 +343,7 @@ function updateAnimation() {
 }
 
 /************************************************************
- * 12) MONSTER ANIMATION UPDATE
- ************************************************************/
-function updateMonsterAnimation() {
-  monsterFrameCounter++;
-
-  if (monsterFrameCounter >= monsterFrameDelay) {
-    monsterFrameCounter = 0;
-    monsterFrameIndex++;
-
-    if (monsterFrameIndex >= MONSTER_FRAMES) {
-      monsterFrameIndex = 0;
-    }
-  }
-}
-
-/************************************************************
- * 13) GET CURRENT PLAYER ANIMATION
+ * 12) GET CURRENT ANIMATION
  ************************************************************/
 function getCurrentAnimation() {
   if (player.moving) {
@@ -424,11 +378,7 @@ function getCurrentAnimation() {
 }
 
 /************************************************************
-<<<<<<< Updated upstream
  * 13) CAMERA MOVEMENT (center on player)
-=======
- * 14) CAMERA MOVEMENT
->>>>>>> Stashed changes
  ************************************************************/
 function updateCamera() {
   cam.x = player.x - width / 2;
@@ -439,11 +389,7 @@ function updateCamera() {
 }
 
 /************************************************************
-<<<<<<< Updated upstream
  * 14) MAZE CREATION (WALLS)
-=======
- * 15) MAZE CREATION
->>>>>>> Stashed changes
  ************************************************************/
 function buildMaze() {
   walls = [];
@@ -463,7 +409,7 @@ function buildMaze() {
 }
 
 /************************************************************
- * 16) COLLISION RESULTS
+ * 15) COLLISION RESULTS
  ************************************************************/
 function circleHitsAnyWall(cx, cy, cr) {
   for (const w of walls) {
@@ -473,11 +419,7 @@ function circleHitsAnyWall(cx, cy, cr) {
 }
 
 /************************************************************
-<<<<<<< Updated upstream
  * 16) ENEMIES (simple bouncing movement)
-=======
- * 17) ENEMIES
->>>>>>> Stashed changes
  ************************************************************/
 function spawnEnemies() {
   enemies = [
@@ -502,11 +444,7 @@ function updateEnemies() {
 }
 
 /************************************************************
-<<<<<<< Updated upstream
  * 17) WIN CONDITION (goal zone)
-=======
- * 18) WIN CONDITION
->>>>>>> Stashed changes
  ************************************************************/
 function drawGoal() {
   noStroke();
@@ -515,87 +453,16 @@ function drawGoal() {
 }
 
 /************************************************************
- * 19) DRAWING FUNCTIONS
+ * 18) DRAWING FUNCTIONS
  ************************************************************/
 function drawWorldBounds() {
   // optional
 }
 
 function drawMaze() {
-<<<<<<< Updated upstream
   noStroke();
   fill(200, 80, 80);
   for (const w of walls) rect(w.x, w.y, w.w, w.h);
-=======
-  for (const w of walls) {
-    drawPipeWall(w);
-  }
-}
-
-function drawPipeWall(wall) {
-  if (!pipeImg) {
-    noStroke();
-    fill(200, 80, 80);
-    rect(wall.x, wall.y, wall.w, wall.h);
-    return;
-  }
-
-  const srcTile = pipeImg.width;
-
-  if (wall.h > wall.w) {
-    const tileSize = wall.w;
-
-    for (let y = wall.y, i = 0; y < wall.y + wall.h; y += tileSize, i++) {
-      const remaining = wall.y + wall.h - y;
-      const drawH = min(tileSize, remaining);
-
-      const syMax = max(1, pipeImg.height - srcTile);
-      const sy = (i * Math.floor(srcTile * 0.8)) % syMax;
-
-      image(
-        pipeImg,
-        wall.x,
-        y,
-        wall.w,
-        drawH,
-        0,
-        sy,
-        pipeImg.width,
-        srcTile
-      );
-    }
-  } else {
-    const tileSize = wall.h;
-
-    for (let x = wall.x, i = 0; x < wall.x + wall.w; x += tileSize, i++) {
-      const remaining = wall.x + wall.w - x;
-      const drawW = min(tileSize, remaining);
-
-      const syMax = max(1, pipeImg.height - srcTile);
-      const sy = (i * Math.floor(srcTile * 0.8)) % syMax;
-
-      push();
-      translate(x + drawW / 2, wall.y + wall.h / 2);
-      rotate(HALF_PI);
-      imageMode(CENTER);
-
-      image(
-        pipeImg,
-        0,
-        0,
-        wall.h,
-        drawW,
-        0,
-        sy,
-        pipeImg.width,
-        srcTile
-      );
-
-      imageMode(CORNER);
-      pop();
-    }
-  }
->>>>>>> Stashed changes
 }
 
 function drawPlayer() {
@@ -621,31 +488,9 @@ function drawPlayer() {
 }
 
 function drawEnemies() {
-  if (!monsterSheet) {
-    noStroke();
-    fill(255, 200, 0);
-    for (const e of enemies) circle(e.x, e.y, e.r * 2);
-    return;
-  }
-
-  const sx = monsterFrameIndex * MONSTER_FRAME_W;
-  const sy = 0;
-  const sw = MONSTER_FRAME_W;
-  const sh = MONSTER_FRAME_H;
-
-  const dw = MONSTER_FRAME_W * MONSTER_SCALE;
-  const dh = MONSTER_FRAME_H * MONSTER_SCALE;
-
-  for (const e of enemies) {
-    const dx = floor(e.x - dw / 2);
-    const dy = floor(e.y - dh / 2);
-
-    image(
-      monsterSheet,
-      dx, dy, dw, dh,
-      sx, sy, sw, sh
-    );
-  }
+  noStroke();
+  fill(255, 200, 0);
+  for (const e of enemies) circle(e.x, e.y, e.r * 2);
 }
 
 function drawHUD() {
@@ -657,7 +502,7 @@ function drawHUD() {
 }
 
 /************************************************************
- * 20) RESTART
+ * 19) RESTART
  ************************************************************/
 function restartGame() {
   player.x = 120;
@@ -668,9 +513,6 @@ function restartGame() {
   player.frameCounter = 0;
   player.currentAnimName = "down_idle";
 
-  monsterFrameIndex = 0;
-  monsterFrameCounter = 0;
-
   health = maxHealth;
   damageCooldown = 0;
   spawnEnemies();
@@ -678,7 +520,7 @@ function restartGame() {
 }
 
 /************************************************************
- * 21) HELPER COLLISION MATH
+ * 20) HELPER COLLISION MATH
  ************************************************************/
 function circleRectCollision(cx, cy, cr, rx, ry, rw, rh) {
   const closestX = constrain(cx, rx, rx + rw);
@@ -693,7 +535,7 @@ function rectContainsCircle(rx, ry, rw, rh, cx, cy, cr) {
 }
 
 /************************************************************
- * 22) HEALTH BAR
+ * 21) HEALTH BAR
  ************************************************************/
 function drawHealthBar() {
   let barWidth = 200;
@@ -716,11 +558,7 @@ function drawHealthBar() {
 }
 
 /************************************************************
-<<<<<<< Updated upstream
  * 22) MONSTER COLLISIONS (damage)
-=======
- * 23) MONSTER COLLISIONS
->>>>>>> Stashed changes
  ************************************************************/
 function checkMonsterCollisions() {
   for (const e of enemies) {
