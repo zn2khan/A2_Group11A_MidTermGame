@@ -23,19 +23,19 @@ const WORLD_H = 1000;
 let sprites = {};
 
 // Sounds
-let startSound;
-let footstepsSound;
-let sidewalkIntroSound;
-let monsterSound;
-let fallingManholeSound;
-let steamSound;
 let bubblingSound;
-let waterDripSound;
-let victorySound;
+let coinSound;
 let damageSound;
+let fallingManhole;
+let footstepsSound;
 let gameOverSound;
 let gutterWaterSound;
-let coinSound;
+let monsterSound;
+let sidewalkIntroSound;
+let startSound;
+let steamSound;
+let victorySound;
+let waterDrip;
 
 // Player
 let player = {
@@ -60,10 +60,10 @@ let player = {
 // Camera
 let cam = { x: 0, y: 0 };
 
-// Maze walls
+// Walls
 let walls = [];
 
-// Goal zone
+// Goal
 let goal = { x: 1450, y: 850, w: 80, h: 80 };
 
 // Enemies
@@ -79,7 +79,7 @@ let health3;
 let health2;
 let health1;
 
-// Damage values
+// Wall damage
 let wallDamage = 1;
 
 /************************************************************
@@ -104,19 +104,19 @@ function preload() {
   sprites.idleRight = loadImage("assets/images/idle_animation_R.png");
 
   // Sounds
-  startSound = loadSound("assets/audio/startSound.mp3");
-  footstepsSound = loadSound("assets/audio/footsteps.mp3");
-  sidewalkIntroSound = loadSound("assets/audio/sidewalkIntro.mp3");
-  monsterSound = loadSound("assets/audio/monsterSound.mp3");
-  fallingManholeSound = loadSound("assets/audio/fallingManhole.mp3");
-  steamSound = loadSound("assets/audio/steamSound.mp3");
   bubblingSound = loadSound("assets/audio/bubblingSound.mp3");
-  waterDripSound = loadSound("assets/audio/waterDripSound.mp3");
-  victorySound = loadSound("assets/audio/victorySound.mp3");
+  coinSound = loadSound("assets/audio/coinSound.mp3");
   damageSound = loadSound("assets/audio/damageSound.mp3");
+  fallingManhole = loadSound("assets/audio/fallingManhole.mp3");
+  footstepsSound = loadSound("assets/audio/footstepsSound.mp3");
   gameOverSound = loadSound("assets/audio/gameOverSound.mp3");
   gutterWaterSound = loadSound("assets/audio/gutterWaterSound.mp3");
-  coinSound = loadSound("assets/audio/coinSound.mp3");
+  monsterSound = loadSound("assets/audio/monsterSound.mp3");
+  sidewalkIntroSound = loadSound("assets/audio/sidewalkIntroSound.mp3");
+  startSound = loadSound("assets/audio/startSound.mp3");
+  steamSound = loadSound("assets/audio/steamSound.mp3");
+  victorySound = loadSound("assets/audio/victorySound.mp3");
+  waterDrip = loadSound("assets/audio/waterDrip.mp3");
 }
 
 /************************************************************
@@ -150,23 +150,23 @@ function draw() {
  * 4) SOUND HELPERS
  ************************************************************/
 function stopAllSounds() {
-  const sounds = [
-    startSound,
-    footstepsSound,
-    sidewalkIntroSound,
-    monsterSound,
-    fallingManholeSound,
-    steamSound,
+  const allSounds = [
     bubblingSound,
-    waterDripSound,
-    victorySound,
+    coinSound,
     damageSound,
+    fallingManhole,
+    footstepsSound,
     gameOverSound,
     gutterWaterSound,
-    coinSound,
+    monsterSound,
+    sidewalkIntroSound,
+    startSound,
+    steamSound,
+    victorySound,
+    waterDrip,
   ];
 
-  for (let s of sounds) {
+  for (let s of allSounds) {
     if (s && s.isPlaying()) {
       s.stop();
     }
@@ -176,32 +176,32 @@ function stopAllSounds() {
 function startMenuAudio() {
   if (sidewalkIntroSound && !sidewalkIntroSound.isPlaying()) {
     sidewalkIntroSound.setLoop(true);
-    sidewalkIntroSound.setVolume(0.25);
+    sidewalkIntroSound.setVolume(0.2);
     sidewalkIntroSound.play();
   }
 }
 
 function startGameAudio() {
   if (startSound) {
-    startSound.setVolume(0.45);
+    startSound.setVolume(0.4);
     startSound.play();
   }
 
   if (gutterWaterSound && !gutterWaterSound.isPlaying()) {
     gutterWaterSound.setLoop(true);
-    gutterWaterSound.setVolume(0.15);
+    gutterWaterSound.setVolume(0.12);
     gutterWaterSound.play();
   }
 
   if (steamSound && !steamSound.isPlaying()) {
     steamSound.setLoop(true);
-    steamSound.setVolume(0.07);
+    steamSound.setVolume(0.05);
     steamSound.play();
   }
 
   if (monsterSound && !monsterSound.isPlaying()) {
     monsterSound.setLoop(true);
-    monsterSound.setVolume(0.04);
+    monsterSound.setVolume(0.03);
     monsterSound.play();
   }
 }
@@ -356,7 +356,7 @@ function keyPressed() {
     if (key === "g" || key === "G") {
       scene = SCENES.GAME;
 
-      if (!gutterWaterSound || !gutterWaterSound.isPlaying()) {
+      if (gutterWaterSound && !gutterWaterSound.isPlaying()) {
         startGameAudio();
       }
     }
@@ -554,7 +554,7 @@ function circleHitsAnyWall(cx, cy, cr) {
 }
 
 /************************************************************
- * 17) ENEMIES
+ * 17) ENEMIES (random)
  ************************************************************/
 function spawnEnemies() {
   enemies = [];
@@ -569,8 +569,8 @@ function spawnEnemies() {
       y = random(80, WORLD_H - 80);
       attempts++;
 
-      let farFromPlayerStart = dist(x, y, 120, 120) > 150;
-      let farFromGoal =
+      const farFromPlayerStart = dist(x, y, 120, 120) > 150;
+      const farFromGoal =
         dist(x, y, goal.x + goal.w / 2, goal.y + goal.h / 2) > 120;
 
       if (!circleHitsAnyWall(x, y, 14) && farFromPlayerStart && farFromGoal) {
@@ -632,9 +632,7 @@ function drawGoal() {
 /************************************************************
  * 19) DRAWING FUNCTIONS
  ************************************************************/
-function drawWorldBounds() {
-  // optional
-}
+function drawWorldBounds() {}
 
 function drawMaze() {
   noStroke();
