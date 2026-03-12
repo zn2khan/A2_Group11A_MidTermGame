@@ -14,6 +14,8 @@ let endMessage = ""; // "You escaped!" or "Game Over!"
 
 let damageTextTimer = 0;
 
+let pipeImg;
+
 // World settings (bigger than screen so camera matters)
 const VIEW_W = 800;
 const VIEW_H = 500;
