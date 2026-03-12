@@ -50,8 +50,6 @@ let damageCooldown = 0; // prevents losing health too fast
 // Wall damage tuning
 let wallDamage = 10; // health lost per wall bump (tune as needed)
 
-pipeImg = loadImage("assets/images/pipe.png"); // Load pipe image for walls
-
 /************************************************************
  * 1) SETUP
  ************************************************************/
@@ -111,7 +109,7 @@ function drawInstructions() {
       "- Reach the green goal zone to win\n\n" +
       "Press B to go back",
     40,
-    80,
+    80
   );
 }
 
@@ -138,7 +136,7 @@ function drawGame() {
       goal.h,
       player.x,
       player.y,
-      player.r,
+      player.r
     )
   ) {
     endMessage = "You escaped! 🎉";
@@ -186,7 +184,7 @@ function drawEnd() {
   text(
     "Press R to restart (or B for Start Screen)",
     width / 2,
-    height / 2 + 25,
+    height / 2 + 25
   );
 
   // Draws the health Bar at the top right corner
@@ -350,33 +348,9 @@ function drawWorldBounds() {
 }
 
 function drawMaze() {
-  for (const w of walls) {
-    drawPipeWall(w);
-  }
-}
-
-function drawPipeWall(w) {
-  push();
-  imageMode(CENTER);
-
-  // vertical wall
-  if (w.h > w.w) {
-    image(
-      pipeImg,
-      w.x + w.w / 2,
-      w.y + w.h / 2,
-      w.w,
-      w.h
-    );
-  }
-  // horizontal wall
-  else {
-    translate(w.x + w.w / 2, w.y + w.h / 2);
-    rotate(HALF_PI);
-    image(pipeImg, 0, 0, w.h, w.w);
-  }
-
-  pop();
+  noStroke();
+  fill(200, 80, 80); // chemical walls (red-ish)
+  for (const w of walls) rect(w.x, w.y, w.w, w.h);
 }
 
 function drawPlayer() {
