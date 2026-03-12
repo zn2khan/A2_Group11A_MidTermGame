@@ -4,15 +4,20 @@
 const SCENES = {
   START: "start",
   INSTRUCTIONS: "instructions",
+  CUTSCENE: "cutscene",
   GAME: "game",
   END: "end",
 };
 
 let scene = SCENES.START;
+let previousScene = null;
+
 let damageText = "";
 let endMessage = "";
-
 let damageTextTimer = 0;
+let endSoundType = "";
+
+let lastMonsterSoundTime = -9999;
 
 // World settings
 const VIEW_W = 800;
@@ -23,10 +28,33 @@ const WORLD_H = 1000;
 // Sprites
 let sprites = {};
 
-// Background + pipe texture + monster sprite
+// Images
+let startBg;
 let gameBg;
 let pipeImg;
 let monsterSheet;
+let cutsceneGif;
+let doorImg;
+
+// Sounds
+let sndBackground;
+let sndBubbling;
+let sndCoin;
+let sndDamage;
+let sndFallingManhole;
+let sndFootsteps;
+let sndGameOver;
+let sndGutterWater;
+let sndIntroduction;
+let sndMonsterSound;
+let sndStartSound;
+let sndSteam;
+let sndVictory;
+let sndWaterDrip;
+
+// Cutscene settings
+let cutsceneDuration = 6200;
+let cutsceneStartTime = 0;
 
 // Monster animation settings
 const MONSTER_FRAME_W = 29;
@@ -69,7 +97,7 @@ let goal = { x: 1450, y: 850, w: 80, h: 80 };
 // Enemies
 let enemies = [];
 
-// Health Bar
+// Health
 let health = 3;
 let maxHealth = 3;
 let damageCooldown = 0;
@@ -78,7 +106,7 @@ let health3;
 let health2;
 let health1;
 
-// Wall damage tuning
+// Damage tuning
 let wallDamage = 1;
 
 /************************************************************
@@ -90,26 +118,42 @@ function preload() {
   health2 = loadImage("assets/images/2LifeHealthBar.png");
   health1 = loadImage("assets/images/1LifeHealthBar.png");
 
-  // Running animations
+  // Player animations
   sprites.downRun = loadImage("assets/images/down_run_animation.png");
   sprites.leftRun = loadImage("assets/images/left_run_animation.png");
   sprites.rightRun = loadImage("assets/images/right_run_animation.png");
   sprites.upRun = loadImage("assets/images/up_run_animation.png");
 
-  // Idle animations
   sprites.idleDown = loadImage("assets/images/idle_animation.png");
   sprites.idleUp = loadImage("assets/images/idle_animation_backside.png");
   sprites.idleLeft = loadImage("assets/images/idle_animation_L.png");
   sprites.idleRight = loadImage("assets/images/idle_animation_R.png");
 
-  // Gameplay background
+  // Screen / environment images
+  startBg = loadImage("assets/images/GBDA302_Background.png");
   gameBg = loadImage("assets/images/background.png");
-
-  // Pipe texture for walls
   pipeImg = loadImage("assets/images/pipe.png");
+  doorImg = loadImage("assets/images/door.png");
 
-  // Monster sprite sheet
+  // Enemy + cutscene
   monsterSheet = loadImage("assets/images/monster.png");
+  cutsceneGif = loadImage("assets/images/cutscene.gif");
+
+  // Audio
+  sndBackground = loadSound("assets/music/background.mp3");
+  sndBubbling = loadSound("assets/music/bubbling.mp3");
+  sndCoin = loadSound("assets/music/coin.mp3");
+  sndDamage = loadSound("assets/music/damage.mp3");
+  sndFallingManhole = loadSound("assets/music/fallingManhole.mp3");
+  sndFootsteps = loadSound("assets/music/footsteps.mp3");
+  sndGameOver = loadSound("assets/music/gameOver.mp3");
+  sndGutterWater = loadSound("assets/music/gutterWater.mp3");
+  sndIntroduction = loadSound("assets/music/introduction.mp3");
+  sndMonsterSound = loadSound("assets/music/monsterSound.mp3");
+  sndStartSound = loadSound("assets/music/startSound.mp3");
+  sndSteam = loadSound("assets/music/steam.mp3");
+  sndVictory = loadSound("assets/music/victory.mp3");
+  sndWaterDrip = loadSound("assets/music/waterDrip.mp3");
 }
 
 /************************************************************
@@ -118,6 +162,7 @@ function preload() {
 function setup() {
   createCanvas(VIEW_W, VIEW_H);
   noSmooth();
+  textFont("monospace");
 
   buildMaze();
   spawnEnemies();
@@ -131,8 +176,11 @@ function draw() {
 
   if (scene === SCENES.START) drawStart();
   else if (scene === SCENES.INSTRUCTIONS) drawInstructions();
+  else if (scene === SCENES.CUTSCENE) drawCutscene();
   else if (scene === SCENES.GAME) drawGame();
   else if (scene === SCENES.END) drawEnd();
+
+  handleSceneAudio();
 
   if (damageCooldown > 0) {
     damageCooldown--;
@@ -143,43 +191,120 @@ function draw() {
  * 4) START PAGE
  ************************************************************/
 function drawStart() {
-  noStroke();
-  fill(255);
-  textAlign(CENTER, CENTER);
-  textSize(40);
-  text("MAZE ESCAPE", width / 2, height / 2 - 40);
+  background(0);
 
+  startFullGameMusic();
+
+  if (startBg) {
+    image(startBg, 0, 0, width, height);
+  }
+
+  noStroke();
+  fill(0, 0, 0, 185);
+  rect(0, height - 120, width, 120);
+
+  drawPixelBox(width / 2 - 170, height - 90, 340, 34);
+  drawPixelBox(width / 2 - 170, height - 46, 340, 34);
+
+  textAlign(CENTER, CENTER);
+  textFont("monospace");
+
+  fill(240, 255, 200);
+  textSize(20);
+  text("PRESS ENTER TO START", width / 2, height - 73);
+
+  fill(220);
   textSize(16);
-  text("Press ENTER to Start", width / 2, height / 2 + 10);
-  text("Press I for Instructions", width / 2, height / 2 + 35);
+  text("PRESS I FOR INSTRUCTIONS", width / 2, height - 29);
+}
+
+function drawPixelBox(x, y, w, h) {
+  noStroke();
+
+  fill(0, 0, 0, 120);
+  rect(x + 4, y + 4, w, h);
+
+  fill(30, 45, 30, 245);
+  rect(x, y, w, h);
+
+  fill(140, 170, 70, 255);
+  rect(x + 3, y + 3, w - 6, h - 6);
+
+  fill(35, 55, 35, 240);
+  rect(x + 6, y + 6, w - 12, h - 12);
 }
 
 /************************************************************
  * 5) INSTRUCTIONS PAGE
  ************************************************************/
 function drawInstructions() {
+  background(10);
   noStroke();
   fill(255);
   textAlign(LEFT, TOP);
-  textSize(18);
-  text("Instructions", 40, 40);
+  textFont("monospace");
 
-  textSize(14);
+  textSize(22);
+  text("INSTRUCTIONS", 40, 40);
+
+  textSize(15);
   text(
     "- Use WASD or Arrow Keys to move\n" +
       "- Character only moves up, down, left, or right\n" +
-      "- Avoid walls (they’re chemical hazards)\n" +
+      "- Avoid walls (they're chemical hazards)\n" +
       "- Avoid monsters in the maze\n" +
       "- Reach the green goal zone to win\n\n" +
       "Press B to go back to the Start Screen\n" +
       "Press G to return to the game",
     40,
-    80
+    90
   );
 }
 
 /************************************************************
- * 6) GAME LOOP
+ * 6) CUTSCENE
+ ************************************************************/
+function startCutscene() {
+  cutsceneStartTime = millis();
+  scene = SCENES.CUTSCENE;
+}
+
+function drawCutscene() {
+  background(0);
+
+  if (cutsceneGif) {
+    const maxW = width * 0.92;
+    const maxH = height * 0.78;
+
+    const scale = min(maxW / cutsceneGif.width, maxH / cutsceneGif.height);
+
+    const dw = floor(cutsceneGif.width * scale);
+    const dh = floor(cutsceneGif.height * scale);
+
+    const dx = floor((width - dw) / 2);
+    const dy = floor((height - dh) / 2) - 10;
+
+    imageMode(CORNER);
+    image(cutsceneGif, dx, dy, dw, dh);
+  } else {
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textSize(24);
+    text("Cutscene loading...", width / 2, height / 2);
+  }
+
+  fill(255);
+  textAlign(CENTER, BOTTOM);
+  textSize(14);
+  text("Press SPACE to skip", width / 2, height - 18);
+
+  if (millis() - cutsceneStartTime >= cutsceneDuration) {
+    scene = SCENES.GAME;
+  }
+}
+
+/************************************************************
+ * 7) GAME LOOP
  ************************************************************/
 function drawGame() {
   updatePlayer();
@@ -187,10 +312,11 @@ function drawGame() {
   updateMonsterAnimation();
   updateCamera();
   updateEnemies();
+  updateFootstepSound();
 
   if (health <= 0) {
-    endMessage = "Game Over! You ran out of health.";
-    scene = SCENES.END;
+    triggerGameOver();
+    return;
   }
 
   if (
@@ -204,8 +330,8 @@ function drawGame() {
       player.r
     )
   ) {
-    endMessage = "You escaped! 🎉";
-    scene = SCENES.END;
+    triggerVictory();
+    return;
   }
 
   push();
@@ -225,7 +351,7 @@ function drawGame() {
   if (damageTextTimer > 0) {
     fill(255, 0, 0);
     textSize(20);
-    textAlign(CENTER);
+    textAlign(CENTER, CENTER);
     text(damageText, width / 2, 60);
     damageTextTimer--;
   }
@@ -234,33 +360,39 @@ function drawGame() {
 }
 
 /************************************************************
- * 7) FINAL / END SCREEN
+ * 8) END SCREEN
  ************************************************************/
 function drawEnd() {
+  background(0);
   noStroke();
   fill(255);
   textAlign(CENTER, CENTER);
-  textSize(24);
-  text(endMessage, width / 2, height / 2 - 10);
+  textFont("monospace");
 
-  textSize(14);
-  text(
-    "Press R to restart (or B for Start Screen)",
-    width / 2,
-    height / 2 + 25
-  );
+  textSize(26);
+  text(endMessage, width / 2, height / 2 - 20);
+
+  textSize(15);
+  text("Press R to restart", width / 2, height / 2 + 20);
+  text("Press B for Start Screen", width / 2, height / 2 + 45);
 }
 
 /************************************************************
- * 8) INPUT HANDLING
+ * 9) INPUT HANDLING
  ************************************************************/
 function keyPressed() {
+  userStartAudio();
+
   if (scene === SCENES.START) {
-    if (keyCode === ENTER) scene = SCENES.GAME;
+    if (keyCode === ENTER) startCutscene();
     if (key === "i" || key === "I") scene = SCENES.INSTRUCTIONS;
   } else if (scene === SCENES.INSTRUCTIONS) {
     if (key === "b" || key === "B") scene = SCENES.START;
     if (key === "g" || key === "G") scene = SCENES.GAME;
+  } else if (scene === SCENES.CUTSCENE) {
+    if (key === " " || keyCode === 32) {
+      scene = SCENES.GAME;
+    }
   } else if (scene === SCENES.GAME) {
     if (key === "i" || key === "I") scene = SCENES.INSTRUCTIONS;
   } else if (scene === SCENES.END) {
@@ -270,20 +402,28 @@ function keyPressed() {
 }
 
 /************************************************************
- * 9) DAMAGE HELPER
+ * 10) DAMAGE HELPER
  ************************************************************/
 function applyDamage(amount, source = "") {
   if (damageCooldown <= 0) {
     health = max(0, health - amount);
     damageCooldown = 30;
-
     damageText = "-" + amount + " health!" + source;
     damageTextTimer = 40;
+
+    if (
+      sndDamage &&
+      getAudioContext().state === "running" &&
+      !sndDamage.isPlaying()
+    ) {
+      sndDamage.setVolume(0.65);
+      sndDamage.play();
+    }
   }
 }
 
 /************************************************************
- * 10) PLAYER MOVEMENT + COLLISION
+ * 11) PLAYER MOVEMENT + COLLISION
  ************************************************************/
 function updatePlayer() {
   let dx = 0;
@@ -333,11 +473,11 @@ function updatePlayer() {
 }
 
 /************************************************************
- * 11) PLAYER ANIMATION UPDATE
+ * 12) PLAYER ANIMATION UPDATE
  ************************************************************/
 function updateAnimation() {
-  let anim = getCurrentAnimation();
-  let animName = player.moving
+  const anim = getCurrentAnimation();
+  const animName = player.moving
     ? `${player.direction}_run`
     : `${player.direction}_idle`;
 
@@ -360,7 +500,7 @@ function updateAnimation() {
 }
 
 /************************************************************
- * 12) MONSTER ANIMATION UPDATE
+ * 13) MONSTER ANIMATION UPDATE
  ************************************************************/
 function updateMonsterAnimation() {
   monsterFrameCounter++;
@@ -376,7 +516,7 @@ function updateMonsterAnimation() {
 }
 
 /************************************************************
- * 13) GET CURRENT PLAYER ANIMATION
+ * 14) GET CURRENT PLAYER ANIMATION
  ************************************************************/
 function getCurrentAnimation() {
   if (player.moving) {
@@ -411,7 +551,7 @@ function getCurrentAnimation() {
 }
 
 /************************************************************
- * 14) CAMERA MOVEMENT
+ * 15) CAMERA MOVEMENT
  ************************************************************/
 function updateCamera() {
   cam.x = player.x - width / 2;
@@ -422,18 +562,16 @@ function updateCamera() {
 }
 
 /************************************************************
- * 15) MAZE CREATION
+ * 16) MAZE CREATION
  ************************************************************/
 function buildMaze() {
   walls = [];
 
-  // Outer border walls
   walls.push({ x: 0, y: 0, w: WORLD_W, h: 30 });
   walls.push({ x: 0, y: WORLD_H - 30, w: WORLD_W, h: 30 });
   walls.push({ x: 0, y: 0, w: 30, h: WORLD_H });
   walls.push({ x: WORLD_W - 30, y: 0, w: 30, h: WORLD_H });
 
-  // Internal walls
   walls.push({ x: 100, y: 200, w: 600, h: 30 });
   walls.push({ x: 300, y: 350, w: 30, h: 400 });
   walls.push({ x: 500, y: 500, w: 500, h: 30 });
@@ -442,7 +580,7 @@ function buildMaze() {
 }
 
 /************************************************************
- * 16) COLLISION RESULTS
+ * 17) COLLISION RESULTS
  ************************************************************/
 function circleHitsAnyWall(cx, cy, cr) {
   for (const w of walls) {
@@ -452,38 +590,34 @@ function circleHitsAnyWall(cx, cy, cr) {
 }
 
 /************************************************************
- * 17) ENEMIES
+ * 18) ENEMIES
  ************************************************************/
 function spawnEnemies() {
   enemies = [];
 
-  const enemyCount = 8; // change this to add more or fewer monsters
+  const enemyCount = 8;
   const maxAttemptsPerEnemy = 200;
 
   for (let i = 0; i < enemyCount; i++) {
     let placed = false;
 
     for (let attempt = 0; attempt < maxAttemptsPerEnemy; attempt++) {
-      let x = random(60, WORLD_W - 60);
-      let y = random(60, WORLD_H - 60);
-      let r = 14;
+      const x = random(60, WORLD_W - 60);
+      const y = random(60, WORLD_H - 60);
+      const r = 14;
 
-      // keep away from walls
       if (circleHitsAnyWall(x, y, r)) continue;
-
-      // keep away from player start
       if (dist(x, y, 120, 120) < 140) continue;
 
-      // keep away from goal
       if (
         x > goal.x - 80 &&
         x < goal.x + goal.w + 80 &&
         y > goal.y - 80 &&
         y < goal.y + goal.h + 80
-      )
+      ) {
         continue;
+      }
 
-      // keep away from other enemies
       let tooClose = false;
       for (const e of enemies) {
         if (dist(x, y, e.x, e.y) < 80) {
@@ -493,15 +627,14 @@ function spawnEnemies() {
       }
       if (tooClose) continue;
 
-      // random movement direction
-      let dir = floor(random(4));
       let vx = 0;
       let vy = 0;
+      const dir = floor(random(4));
 
       if (dir === 0) vx = 1;
       else if (dir === 1) vx = -1;
       else if (dir === 2) vy = 1;
-      else if (dir === 3) vy = -1;
+      else vy = -1;
 
       enemies.push({
         x: x,
@@ -538,22 +671,29 @@ function updateEnemies() {
 }
 
 /************************************************************
- * 18) WIN CONDITION
- ************************************************************/
-function drawGoal() {
-  noStroke();
-  fill(0, 200, 100);
-  rect(goal.x, goal.y, goal.w, goal.h);
-}
-
-/************************************************************
- * 19) DRAWING FUNCTIONS
+ * 19) WORLD / GOAL / DRAWING
  ************************************************************/
 function drawWorldBackground() {
   if (gameBg) {
     image(gameBg, 0, 0, WORLD_W, WORLD_H);
   } else {
     background(40, 25, 20);
+  }
+}
+
+function drawGoal() {
+  if (doorImg) {
+    const drawW = 110;
+    const drawH = 110;
+
+    const dx = goal.x + goal.w / 2 - drawW / 2;
+    const dy = goal.y + goal.h / 2 - drawH / 2;
+
+    image(doorImg, dx, dy, drawW, drawH);
+  } else {
+    noStroke();
+    fill(0, 200, 100);
+    rect(goal.x, goal.y, goal.w, goal.h);
   }
 }
 
@@ -585,7 +725,7 @@ function drawPipeWall(wall) {
       const drawH = min(tileSize, remaining);
 
       const syMax = max(1, pipeImg.height - srcTile);
-      const sy = (i * Math.floor(srcTile * 0.8)) % syMax;
+      const sy = (i * floor(srcTile * 0.8)) % syMax;
 
       image(pipeImg, wall.x, y, wall.w, drawH, 0, sy, pipeImg.width, srcTile);
     }
@@ -597,7 +737,7 @@ function drawPipeWall(wall) {
       const drawW = min(tileSize, remaining);
 
       const syMax = max(1, pipeImg.height - srcTile);
-      const sy = (i * Math.floor(srcTile * 0.8)) % syMax;
+      const sy = (i * floor(srcTile * 0.8)) % syMax;
 
       push();
       translate(x + drawW / 2, wall.y + wall.h / 2);
@@ -613,18 +753,18 @@ function drawPipeWall(wall) {
 }
 
 function drawPlayer() {
-  let anim = getCurrentAnimation();
+  const anim = getCurrentAnimation();
 
-  let sx = player.frameIndex * anim.frameW;
-  let sy = 0;
-  let sw = anim.frameW;
-  let sh = anim.frameH;
+  const sx = player.frameIndex * anim.frameW;
+  const sy = 0;
+  const sw = anim.frameW;
+  const sh = anim.frameH;
 
-  let dw = anim.frameW * player.scale;
-  let dh = anim.frameH * player.scale;
+  const dw = anim.frameW * player.scale;
+  const dh = anim.frameH * player.scale;
 
-  let dx = floor(player.x - dw / 2);
-  let dy = floor(player.y - dh / 2);
+  const dx = floor(player.x - dw / 2);
+  const dy = floor(player.y - dh / 2);
 
   image(anim.sheet, dx, dy, dw, dh, sx, sy, sw, sh);
 }
@@ -658,6 +798,7 @@ function drawHUD() {
   fill(255);
   textSize(12);
   textAlign(LEFT, TOP);
+  textFont("monospace");
   text("Reach the green zone. Avoid walls + monsters.", 10, 10);
   text("Press I for Instructions", 10, 26);
 }
@@ -666,6 +807,8 @@ function drawHUD() {
  * 20) RESTART
  ************************************************************/
 function restartGame() {
+  stopAllSounds();
+
   player.x = 120;
   player.y = 120;
   player.direction = "down";
@@ -679,8 +822,30 @@ function restartGame() {
 
   health = maxHealth;
   damageCooldown = 0;
+  damageText = "";
+  damageTextTimer = 0;
+  endMessage = "";
+  endSoundType = "";
+  lastMonsterSoundTime = -9999;
+
   spawnEnemies();
   scene = SCENES.GAME;
+
+  startFullGameMusic();
+
+  if (getAudioContext().state === "running") {
+    if (sndGutterWater && !sndGutterWater.isPlaying()) {
+      sndGutterWater.setLoop(true);
+      sndGutterWater.setVolume(0.12);
+      sndGutterWater.play();
+    }
+
+    if (sndSteam && !sndSteam.isPlaying()) {
+      sndSteam.setLoop(true);
+      sndSteam.setVolume(0.1);
+      sndSteam.play();
+    }
+  }
 }
 
 /************************************************************
@@ -702,10 +867,10 @@ function rectContainsCircle(rx, ry, rw, rh, cx, cy, cr) {
  * 22) HEALTH BAR
  ************************************************************/
 function drawHealthBar() {
-  let barWidth = 200;
-  let barHeight = 30;
-  let x = width - barWidth - 10;
-  let y = 1;
+  const barWidth = 200;
+  const barHeight = 30;
+  const x = width - barWidth - 10;
+  const y = 1;
 
   if (health === 3) {
     image(health3, x, y, barWidth, barHeight);
@@ -718,6 +883,7 @@ function drawHealthBar() {
   fill(0, 255, 0);
   noStroke();
   textSize(12);
+  textFont("monospace");
   text("Health: lives player has left", x + 20, y + barHeight + 15);
 }
 
@@ -727,9 +893,160 @@ function drawHealthBar() {
 function checkMonsterCollisions() {
   for (const e of enemies) {
     const d = dist(player.x, player.y, e.x, e.y);
-
     if (d < player.r + e.r) {
-      applyDamage(1, " (Enemy Collision!)");
+      if (damageCooldown <= 0) {
+        const now = millis();
+
+        if (
+          sndMonsterSound &&
+          getAudioContext().state === "running" &&
+          now - lastMonsterSoundTime > 350
+        ) {
+          sndMonsterSound.setVolume(0.6);
+          sndMonsterSound.play();
+          lastMonsterSoundTime = now;
+        }
+
+        applyDamage(1, " (Enemy Collision!)");
+      }
     }
   }
+}
+
+/************************************************************
+ * 24) SOUND HELPERS
+ ************************************************************/
+function stopAllSounds() {
+  const allSounds = [
+    sndBackground,
+    sndBubbling,
+    sndCoin,
+    sndDamage,
+    sndFallingManhole,
+    sndFootsteps,
+    sndGameOver,
+    sndGutterWater,
+    sndIntroduction,
+    sndMonsterSound,
+    sndStartSound,
+    sndSteam,
+    sndVictory,
+    sndWaterDrip,
+  ];
+
+  for (const s of allSounds) {
+    if (s && s.isPlaying()) {
+      s.stop();
+    }
+  }
+}
+
+function startFullGameMusic() {
+  if (!sndBackground) return;
+  if (getAudioContext().state !== "running") return;
+
+  if (!sndBackground.isPlaying()) {
+    sndBackground.setLoop(true);
+    sndBackground.setVolume(0.18);
+    sndBackground.play();
+  }
+}
+
+function updateFootstepSound() {
+  if (!sndFootsteps) return;
+
+  if (getAudioContext().state !== "running" || scene !== SCENES.GAME) {
+    if (sndFootsteps.isPlaying()) {
+      sndFootsteps.stop();
+    }
+    return;
+  }
+
+  if (player.moving) {
+    if (!sndFootsteps.isPlaying()) {
+      sndFootsteps.setLoop(true);
+      sndFootsteps.setVolume(0.22);
+      sndFootsteps.play();
+    }
+  } else {
+    if (sndFootsteps.isPlaying()) {
+      sndFootsteps.stop();
+    }
+  }
+}
+
+function handleSceneAudio() {
+  if (scene === previousScene) return;
+
+  if (
+    scene === SCENES.START ||
+    scene === SCENES.CUTSCENE ||
+    scene === SCENES.GAME
+  ) {
+    startFullGameMusic();
+
+    if (scene === SCENES.GAME) {
+      if (
+        sndGutterWater &&
+        getAudioContext().state === "running" &&
+        !sndGutterWater.isPlaying()
+      ) {
+        sndGutterWater.setLoop(true);
+        sndGutterWater.setVolume(0.12);
+        sndGutterWater.play();
+      }
+
+      if (
+        sndSteam &&
+        getAudioContext().state === "running" &&
+        !sndSteam.isPlaying()
+      ) {
+        sndSteam.setLoop(true);
+        sndSteam.setVolume(0.1);
+        sndSteam.play();
+      }
+    } else {
+      if (sndGutterWater && sndGutterWater.isPlaying()) {
+        sndGutterWater.stop();
+      }
+      if (sndSteam && sndSteam.isPlaying()) {
+        sndSteam.stop();
+      }
+      if (sndFootsteps && sndFootsteps.isPlaying()) {
+        sndFootsteps.stop();
+      }
+    }
+  } else if (scene === SCENES.INSTRUCTIONS) {
+    if (sndFootsteps && sndFootsteps.isPlaying()) {
+      sndFootsteps.stop();
+    }
+  } else if (scene === SCENES.END) {
+    stopAllSounds();
+
+    if (getAudioContext().state === "running") {
+      if (endSoundType === "victory" && sndVictory) {
+        sndVictory.setVolume(0.65);
+        sndVictory.play();
+      } else if (endSoundType === "gameOver" && sndGameOver) {
+        sndGameOver.setVolume(0.65);
+        sndGameOver.play();
+      }
+    }
+  }
+
+  previousScene = scene;
+}
+
+function triggerVictory() {
+  stopAllSounds();
+  endMessage = "You escaped! 🎉";
+  endSoundType = "victory";
+  scene = SCENES.END;
+}
+
+function triggerGameOver() {
+  stopAllSounds();
+  endMessage = "Game Over! You ran out of health.";
+  endSoundType = "gameOver";
+  scene = SCENES.END;
 }
