@@ -29,7 +29,7 @@ let sprites = {};
 let player = {
   x: 120,
   y: 120,
-  r: 14, // collision radius
+  r: 14,          // collision radius
   speed: 3,
 
   // sprite frame size
@@ -43,7 +43,7 @@ let player = {
   frameIndex: 0,
   frameDelay: 8,
   frameCounter: 0,
-  currentAnimName: "down_idle",
+  currentAnimName: "down_idle"
 };
 
 // Camera (we’ll center it on the player)
@@ -153,7 +153,7 @@ function drawInstructions() {
       "- Reach the green goal zone to win\n\n" +
       "Press B to go back",
     40,
-    80,
+    80
   );
 }
 
@@ -181,7 +181,7 @@ function drawGame() {
       goal.h,
       player.x,
       player.y,
-      player.r,
+      player.r
     )
   ) {
     endMessage = "You escaped! 🎉";
@@ -228,7 +228,7 @@ function drawEnd() {
   text(
     "Press R to restart (or B for Start Screen)",
     width / 2,
-    height / 2 + 25,
+    height / 2 + 25
   );
 }
 
@@ -268,7 +268,7 @@ function updatePlayer() {
   let dx = 0;
   let dy = 0;
 
-  const up = keyIsDown(UP_ARROW) || keyIsDown(87); // W
+  const up = keyIsDown(UP_ARROW) || keyIsDown(87);    // W
   const down = keyIsDown(DOWN_ARROW) || keyIsDown(83); // S
   const left = keyIsDown(LEFT_ARROW) || keyIsDown(65); // A
   const right = keyIsDown(RIGHT_ARROW) || keyIsDown(68); // D
@@ -288,7 +288,7 @@ function updatePlayer() {
     player.direction = "right";
   }
 
-  player.moving = dx !== 0 || dy !== 0;
+  player.moving = (dx !== 0 || dy !== 0);
 
   // Try X move
   if (dx !== 0) {
@@ -480,7 +480,11 @@ function drawPlayer() {
   let dx = floor(player.x - dw / 2);
   let dy = floor(player.y - dh / 2);
 
-  image(anim.sheet, dx, dy, dw, dh, sx, sy, sw, sh);
+  image(
+    anim.sheet,
+    dx, dy, dw, dh,
+    sx, sy, sw, sh
+  );
 }
 
 function drawEnemies() {
