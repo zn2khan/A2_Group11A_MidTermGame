@@ -10,13 +10,11 @@ const SCENES = {
 
 let scene = SCENES.START;
 let damageText = "";
-let endMessage = ""; // "You escaped!" or "Game Over!"
+let endMessage = "";
 
 let damageTextTimer = 0;
 
-let pipeImg;
-
-// World settings (bigger than screen so camera matters)
+// World settings
 const VIEW_W = 800;
 const VIEW_H = 500;
 const WORLD_W = 1600;
@@ -25,14 +23,17 @@ const WORLD_H = 1000;
 // Sprites
 let sprites = {};
 
+// Background + pipe texture
+let gameBg;
+let pipeImg;
+
 // Player
 let player = {
   x: 120,
   y: 120,
-  r: 14,          // collision radius
+  r: 14,
   speed: 3,
 
-  // sprite frame size
   w: 18,
   h: 29,
   scale: 3,
@@ -46,29 +47,29 @@ let player = {
   currentAnimName: "down_idle"
 };
 
-// Camera (we’ll center it on the player)
+// Camera
 let cam = { x: 0, y: 0 };
 
-// Maze walls: each wall is {x, y, w, h}
+// Maze walls
 let walls = [];
 
-// Goal zone (finish)
+// Goal zone
 let goal = { x: 1450, y: 850, w: 80, h: 80 };
 
-// Enemies: each enemy is {x,y,r,vx,vy,speed}
+// Enemies
 let enemies = [];
 
 // Health Bar
 let health = 3;
 let maxHealth = 3;
-let damageCooldown = 0; // prevents losing health too fast
+let damageCooldown = 0;
 
-let health3; // 3 lives left (full bar)
-let health2; // 2 lives left
-let health1; // 1 life left
+let health3;
+let health2;
+let health1;
 
 // Wall damage tuning
-let wallDamage = 1; // health lost per wall bump
+let wallDamage = 1;
 
 /************************************************************
  * 1) PRELOAD
@@ -90,6 +91,12 @@ function preload() {
   sprites.idleUp = loadImage("assets/images/idle_animation_backside.png");
   sprites.idleLeft = loadImage("assets/images/idle_animation_L.png");
   sprites.idleRight = loadImage("assets/images/idle_animation_R.png");
+
+  // Gameplay background
+  gameBg = loadImage("assets/images/background.png");
+
+  // Pipe texture for walls
+  pipeImg = loadImage("assets/images/pipe.png");
 }
 
 /************************************************************
@@ -104,7 +111,7 @@ function setup() {
 }
 
 /************************************************************
- * 3) MAIN DRAW LOOP (SCENE MANAGER)
+ * 3) MAIN DRAW LOOP
  ************************************************************/
 function draw() {
   background(20);
@@ -158,16 +165,14 @@ function drawInstructions() {
 }
 
 /************************************************************
- * 6) GAME LOOP (UPDATE + DRAW)
+ * 6) GAME LOOP
  ************************************************************/
 function drawGame() {
-  // Update
   updatePlayer();
   updateAnimation();
   updateCamera();
   updateEnemies();
 
-  // Check lose + win
   if (health <= 0) {
     endMessage = "Game Over! You ran out of health.";
     scene = SCENES.END;
@@ -188,10 +193,10 @@ function drawGame() {
     scene = SCENES.END;
   }
 
-  // Draw world with camera transform
   push();
   translate(-cam.x, -cam.y);
 
+  drawWorldBackground();
   drawWorldBounds();
   drawGoal();
   drawMaze();
@@ -200,7 +205,6 @@ function drawGame() {
 
   pop();
 
-  // HUD
   drawHUD();
 
   if (damageTextTimer > 0) {
@@ -262,18 +266,16 @@ function applyDamage(amount, source = "") {
 
 /************************************************************
  * 10) PLAYER MOVEMENT + COLLISION
- *     Uses your smoother movement structure
  ************************************************************/
 function updatePlayer() {
   let dx = 0;
   let dy = 0;
 
-  const up = keyIsDown(UP_ARROW) || keyIsDown(87);    // W
-  const down = keyIsDown(DOWN_ARROW) || keyIsDown(83); // S
-  const left = keyIsDown(LEFT_ARROW) || keyIsDown(65); // A
-  const right = keyIsDown(RIGHT_ARROW) || keyIsDown(68); // D
+  const up = keyIsDown(UP_ARROW) || keyIsDown(87);
+  const down = keyIsDown(DOWN_ARROW) || keyIsDown(83);
+  const left = keyIsDown(LEFT_ARROW) || keyIsDown(65);
+  const right = keyIsDown(RIGHT_ARROW) || keyIsDown(68);
 
-  // No diagonal movement: vertical priority first, then horizontal
   if (up && !down) {
     dy = -player.speed;
     player.direction = "up";
@@ -290,7 +292,6 @@ function updatePlayer() {
 
   player.moving = (dx !== 0 || dy !== 0);
 
-  // Try X move
   if (dx !== 0) {
     player.x += dx;
     if (circleHitsAnyWall(player.x, player.y, player.r)) {
@@ -299,7 +300,6 @@ function updatePlayer() {
     }
   }
 
-  // Try Y move
   if (dy !== 0) {
     player.y += dy;
     if (circleHitsAnyWall(player.x, player.y, player.r)) {
@@ -308,7 +308,6 @@ function updatePlayer() {
     }
   }
 
-  // Keep player inside world bounds
   player.x = constrain(player.x, player.r, WORLD_W - player.r);
   player.y = constrain(player.y, player.r, WORLD_H - player.r);
 
@@ -378,7 +377,7 @@ function getCurrentAnimation() {
 }
 
 /************************************************************
- * 13) CAMERA MOVEMENT (center on player)
+ * 13) CAMERA MOVEMENT
  ************************************************************/
 function updateCamera() {
   cam.x = player.x - width / 2;
@@ -389,7 +388,7 @@ function updateCamera() {
 }
 
 /************************************************************
- * 14) MAZE CREATION (WALLS)
+ * 14) MAZE CREATION
  ************************************************************/
 function buildMaze() {
   walls = [];
@@ -419,7 +418,7 @@ function circleHitsAnyWall(cx, cy, cr) {
 }
 
 /************************************************************
- * 16) ENEMIES (simple bouncing movement)
+ * 16) ENEMIES
  ************************************************************/
 function spawnEnemies() {
   enemies = [
@@ -444,7 +443,7 @@ function updateEnemies() {
 }
 
 /************************************************************
- * 17) WIN CONDITION (goal zone)
+ * 17) WIN CONDITION
  ************************************************************/
 function drawGoal() {
   noStroke();
@@ -455,14 +454,92 @@ function drawGoal() {
 /************************************************************
  * 18) DRAWING FUNCTIONS
  ************************************************************/
+function drawWorldBackground() {
+  if (gameBg) {
+    image(gameBg, 0, 0, WORLD_W, WORLD_H);
+  } else {
+    background(40, 25, 20);
+  }
+}
+
 function drawWorldBounds() {
   // optional
 }
 
 function drawMaze() {
-  noStroke();
-  fill(200, 80, 80);
-  for (const w of walls) rect(w.x, w.y, w.w, w.h);
+  for (const w of walls) {
+    drawPipeWall(w);
+  }
+}
+
+function drawPipeWall(wall) {
+  if (!pipeImg) {
+    noStroke();
+    fill(200, 80, 80);
+    rect(wall.x, wall.y, wall.w, wall.h);
+    return;
+  }
+
+  // Use square chunks from the pipe image so we can tile it
+  // without stretching the whole long image.
+  const srcTile = pipeImg.width;
+
+  // Vertical wall
+  if (wall.h > wall.w) {
+    const tileSize = wall.w;
+
+    for (let y = wall.y, i = 0; y < wall.y + wall.h; y += tileSize, i++) {
+      const remaining = wall.y + wall.h - y;
+      const drawH = min(tileSize, remaining);
+
+      const syMax = max(1, pipeImg.height - srcTile);
+      const sy = (i * Math.floor(srcTile * 0.8)) % syMax;
+
+      image(
+        pipeImg,
+        wall.x,
+        y,
+        wall.w,
+        drawH,
+        0,
+        sy,
+        pipeImg.width,
+        srcTile
+      );
+    }
+  }
+  // Horizontal wall
+  else {
+    const tileSize = wall.h;
+
+    for (let x = wall.x, i = 0; x < wall.x + wall.w; x += tileSize, i++) {
+      const remaining = wall.x + wall.w - x;
+      const drawW = min(tileSize, remaining);
+
+      const syMax = max(1, pipeImg.height - srcTile);
+      const sy = (i * Math.floor(srcTile * 0.8)) % syMax;
+
+      push();
+      translate(x + drawW / 2, wall.y + wall.h / 2);
+      rotate(HALF_PI);
+      imageMode(CENTER);
+
+      image(
+        pipeImg,
+        0,
+        0,
+        wall.h,
+        drawW,
+        0,
+        sy,
+        pipeImg.width,
+        srcTile
+      );
+
+      imageMode(CORNER);
+      pop();
+    }
+  }
 }
 
 function drawPlayer() {
@@ -476,7 +553,6 @@ function drawPlayer() {
   let dw = anim.frameW * player.scale;
   let dh = anim.frameH * player.scale;
 
-  // centered on player.x/y so collision still matches your original system
   let dx = floor(player.x - dw / 2);
   let dy = floor(player.y - dh / 2);
 
@@ -558,7 +634,7 @@ function drawHealthBar() {
 }
 
 /************************************************************
- * 22) MONSTER COLLISIONS (damage)
+ * 22) MONSTER COLLISIONS
  ************************************************************/
 function checkMonsterCollisions() {
   for (const e of enemies) {
