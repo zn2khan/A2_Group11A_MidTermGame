@@ -54,7 +54,7 @@ let player = {
   frameIndex: 0,
   frameDelay: 8,
   frameCounter: 0,
-  currentAnimName: "down_idle"
+  currentAnimName: "down_idle",
 };
 
 // Camera
@@ -171,7 +171,8 @@ function drawInstructions() {
       "- Avoid walls (they’re chemical hazards)\n" +
       "- Avoid monsters in the maze\n" +
       "- Reach the green goal zone to win\n\n" +
-      "Press B to go back",
+      "Press B to go back to the Start Screen\n" +
+      "Press G to return to the game",
     40,
     80
   );
@@ -259,6 +260,9 @@ function keyPressed() {
     if (key === "i" || key === "I") scene = SCENES.INSTRUCTIONS;
   } else if (scene === SCENES.INSTRUCTIONS) {
     if (key === "b" || key === "B") scene = SCENES.START;
+    if (key === "g" || key === "G") scene = SCENES.GAME;
+  } else if (scene === SCENES.GAME) {
+    if (key === "i" || key === "I") scene = SCENES.INSTRUCTIONS;
   } else if (scene === SCENES.END) {
     if (key === "r" || key === "R") restartGame();
     if (key === "b" || key === "B") scene = SCENES.START;
@@ -304,7 +308,7 @@ function updatePlayer() {
     player.direction = "right";
   }
 
-  player.moving = (dx !== 0 || dy !== 0);
+  player.moving = dx !== 0 || dy !== 0;
 
   if (dx !== 0) {
     player.x += dx;
@@ -451,10 +455,71 @@ function circleHitsAnyWall(cx, cy, cr) {
  * 17) ENEMIES
  ************************************************************/
 function spawnEnemies() {
-  enemies = [
-    { x: 600, y: 150, r: 14, vx: 1, vy: 0, speed: 2 },
-    { x: 1200, y: 400, r: 14, vx: 0, vy: 1, speed: 2 },
-  ];
+  enemies = [];
+
+  const enemyCount = 8; // change this to add more or fewer monsters
+  const maxAttemptsPerEnemy = 200;
+
+  for (let i = 0; i < enemyCount; i++) {
+    let placed = false;
+
+    for (let attempt = 0; attempt < maxAttemptsPerEnemy; attempt++) {
+      let x = random(60, WORLD_W - 60);
+      let y = random(60, WORLD_H - 60);
+      let r = 14;
+
+      // keep away from walls
+      if (circleHitsAnyWall(x, y, r)) continue;
+
+      // keep away from player start
+      if (dist(x, y, 120, 120) < 140) continue;
+
+      // keep away from goal
+      if (
+        x > goal.x - 80 &&
+        x < goal.x + goal.w + 80 &&
+        y > goal.y - 80 &&
+        y < goal.y + goal.h + 80
+      )
+        continue;
+
+      // keep away from other enemies
+      let tooClose = false;
+      for (const e of enemies) {
+        if (dist(x, y, e.x, e.y) < 80) {
+          tooClose = true;
+          break;
+        }
+      }
+      if (tooClose) continue;
+
+      // random movement direction
+      let dir = floor(random(4));
+      let vx = 0;
+      let vy = 0;
+
+      if (dir === 0) vx = 1;
+      else if (dir === 1) vx = -1;
+      else if (dir === 2) vy = 1;
+      else if (dir === 3) vy = -1;
+
+      enemies.push({
+        x: x,
+        y: y,
+        r: r,
+        vx: vx,
+        vy: vy,
+        speed: random(1.5, 2.5),
+      });
+
+      placed = true;
+      break;
+    }
+
+    if (!placed) {
+      console.log("Could not place enemy #" + i);
+    }
+  }
 }
 
 function updateEnemies() {
@@ -522,17 +587,7 @@ function drawPipeWall(wall) {
       const syMax = max(1, pipeImg.height - srcTile);
       const sy = (i * Math.floor(srcTile * 0.8)) % syMax;
 
-      image(
-        pipeImg,
-        wall.x,
-        y,
-        wall.w,
-        drawH,
-        0,
-        sy,
-        pipeImg.width,
-        srcTile
-      );
+      image(pipeImg, wall.x, y, wall.w, drawH, 0, sy, pipeImg.width, srcTile);
     }
   } else {
     const tileSize = wall.h;
@@ -549,17 +604,7 @@ function drawPipeWall(wall) {
       rotate(HALF_PI);
       imageMode(CENTER);
 
-      image(
-        pipeImg,
-        0,
-        0,
-        wall.h,
-        drawW,
-        0,
-        sy,
-        pipeImg.width,
-        srcTile
-      );
+      image(pipeImg, 0, 0, wall.h, drawW, 0, sy, pipeImg.width, srcTile);
 
       imageMode(CORNER);
       pop();
@@ -581,11 +626,7 @@ function drawPlayer() {
   let dx = floor(player.x - dw / 2);
   let dy = floor(player.y - dh / 2);
 
-  image(
-    anim.sheet,
-    dx, dy, dw, dh,
-    sx, sy, sw, sh
-  );
+  image(anim.sheet, dx, dy, dw, dh, sx, sy, sw, sh);
 }
 
 function drawEnemies() {
@@ -608,11 +649,7 @@ function drawEnemies() {
     const dx = floor(e.x - dw / 2);
     const dy = floor(e.y - dh / 2);
 
-    image(
-      monsterSheet,
-      dx, dy, dw, dh,
-      sx, sy, sw, sh
-    );
+    image(monsterSheet, dx, dy, dw, dh, sx, sy, sw, sh);
   }
 }
 
@@ -622,6 +659,7 @@ function drawHUD() {
   textSize(12);
   textAlign(LEFT, TOP);
   text("Reach the green zone. Avoid walls + monsters.", 10, 10);
+  text("Press I for Instructions", 10, 26);
 }
 
 /************************************************************
