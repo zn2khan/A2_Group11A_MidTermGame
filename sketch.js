@@ -14,6 +14,8 @@ let endMessage = ""; // "You escaped!" or "Game Over!"
 
 let damageTextTimer = 0;
 
+let pipeImg;
+
 // World settings (bigger than screen so camera matters)
 const VIEW_W = 800;
 const VIEW_H = 500;
@@ -47,6 +49,8 @@ let damageCooldown = 0; // prevents losing health too fast
 
 // Wall damage tuning
 let wallDamage = 10; // health lost per wall bump (tune as needed)
+
+pipeImg = loadImage("assets/images/pipe.png"); // Load pipe image for walls
 
 /************************************************************
  * 1) SETUP
@@ -346,9 +350,33 @@ function drawWorldBounds() {
 }
 
 function drawMaze() {
-  noStroke();
-  fill(200, 80, 80); // chemical walls (red-ish)
-  for (const w of walls) rect(w.x, w.y, w.w, w.h);
+  for (const w of walls) {
+    drawPipeWall(w);
+  }
+}
+
+function drawPipeWall(w) {
+  push();
+  imageMode(CENTER);
+
+  // vertical wall
+  if (w.h > w.w) {
+    image(
+      pipeImg,
+      w.x + w.w / 2,
+      w.y + w.h / 2,
+      w.w,
+      w.h
+    );
+  }
+  // horizontal wall
+  else {
+    translate(w.x + w.w / 2, w.y + w.h / 2);
+    rotate(HALF_PI);
+    image(pipeImg, 0, 0, w.h, w.w);
+  }
+
+  pop();
 }
 
 function drawPlayer() {
