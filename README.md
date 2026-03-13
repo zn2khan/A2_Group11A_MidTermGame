@@ -11,48 +11,63 @@
     a. Post-Playtest: Changes made based on playtesting is that we added high-fidelity illustrations/designs to our game, added a way to view               instructions from the main game screen, caption underneath the healthBar along with visual cue for clearer player understanding, added sound, a        cut-scene at the begining of the game, and more monsters to increase the difficulty of the game.
 
    b. Post-Showcase: Two planned improvements
-7. Assets: List and attribute all non-original assets with in-text citations
-8. References:
 
-[1] Film special effects bubbling sauce. 2022. Pixabay.
-    https://pixabay.com/sound-effects/film-special-effects-bubbling-sauce-82030/
+6. Assets: List and attribute all non-original assets with in-text citations
+    Start screen [2]
+    End screen (win) [3]
+    End screen (lose) [4]
+    Game starts [11]
+    Monster sound [15]
+    Walking [7]
+    Falling down manhole [18]
+    Steam – chemicals [12]
+    Chemical bubbling sound [5]
+    Water dripping [19]
+    Getting to the green space sound (victory sound) [14]
+    Life deduction sound & bumping into danger (monster + walls + chemicals) [8]
+    Game over [10]
+    Gutter water flowing sound / background noise [16]
+    Getting coins [6]
+    Gameplay sound – throughout [18]
+    Additional gameplay sound [9]
+    Disability research [1 + 17]
+   
+7. References:
 
-[2] Film special effects coin received.2024. Pixabay.
-    https://pixabay.com/sound-effects/film-special-effects-coin-recieved-230517/
+    [1] 2024. Multiple Chemical Sensitivity: Causes, Symptoms & Treatment. Cleveland Clinic. Retrieved from https://my.clevelandclinic.org/health/diseases/multiple-chemical-sensitivity
+    
+    [2] ChatGPT Image Mar 12, 2026, 10_20_27 PM.png. 2026. ChatGPT (GPT-5.3) image generation. OpenAI. Generated March 12, 2026. https://chat.openai.com
+    
+    [3] ChatGPT Image Mar 12, 2026, 10_30_48 PM.png. 2026. ChatGPT (GPT-5.3) image generation. OpenAI. Generated March 12, 2026. https://chat.openai.com
+    
+    [4] ChatGPT Image Mar 12, 2026, 10_42_18 PM.png. 2026. ChatGPT (GPT-5.3) image generation. OpenAI. Generated March 12, 2026. https://chat.openai.com
+    
+    [5] Film special effects bubbling sauce. 2022. Pixabay. https://pixabay.com/sound-effects/film-special-effects-bubbling-sauce-82030/
 
-[3] Film special effects concrete footsteps. 2021. Pixabay.
-    https://pixabay.com/sound-effects/film-special-effects-concrete-footsteps-6752/
+    [6] Film special effects coin received. 2024. Pixabay. https://pixabay.com/sound-effects/film-special-effects-coin-recieved-230517/
 
-[4] Film special effects error mistake sound effect incorrect answer. 2025. Pixabay.
-    https://pixabay.com/sound-effects/film-special-effects-error-mistake-sound-effect-incorrect-answer-437420/
+    [7] Film special effects concrete footsteps. 2021. Pixabay. https://pixabay.com/sound-effects/film-special-effects-concrete-footsteps-6752/
 
-[5] Film special effects funny cartoon sound 3. 2025. Pixabay.
-    https://pixabay.com/sound-effects/film-special-effects-funny-cartoon-sound-3-413962/
+    [8] Film special effects error mistake sound effect incorrect answer. 2025. Pixabay. https://pixabay.com/sound-effects/film-special-effects-error-mistake-sound-effect-incorrect-answer-437420/
 
-[6] Film special effects game over arcade. 2021. Pixabay.
-    https://pixabay.com/sound-effects/film-special-effects-game-over-arcade-6435/
+    [9] Film special effects funny cartoon sound 3. 2025. Pixabay. https://pixabay.com/sound-effects/film-special-effects-funny-cartoon-sound-3-413962/
 
-[7] Film special effects game start. 2025. Pixabay.
-    https://pixabay.com/sound-effects/film-special-effects-game-start-317318/
+    [10] Film special effects game over arcade. 2021. Pixabay. https://pixabay.com/sound-effects/film-special-effects-game-over-arcade-6435/
 
-[8] Film special effects steam 2.2022. Pixabay.
-    https://pixabay.com/sound-effects/film-special-effects-steam-2-36231/
+    [11] Film special effects game start. 2025. Pixabay. https://pixabay.com/sound-effects/film-special-effects-game-start-317318/
 
-[9] Gaming victory. 2026. Pixabay.
-    https://pixabay.com/sound-effects/gaming-victory-464016/
+    [12] Film special effects steam 2. 2022. Pixabay. https://pixabay.com/sound-effects/film-special-effects-steam-2-36231/
 
-[10] Horror monsters eating. 2025. Pixabay.
-    https://pixabay.com/sound-effects/horror-monsters-eating-295853/
+    [13] Film special effects whistle slide down 02. 2025. Pixabay. https://pixabay.com/sound-effects/film-special-effects-whistle-slide-down-02-350715/
 
-[11] Household fieldgutterdrainsewagerunningwater 01 mkh416. 2022. Pixabay.
-    https://pixabay.com/sound-effects/household-fieldgutterdrainsewagerunningwater-01-mkh416-24852/
+    [14] Gaming victory. 2026. Pixabay. https://pixabay.com/sound-effects/gaming-victory-464016/
 
-[12] Musical scary horror theme song. 2025. Pixabay.
-    https://pixabay.com/sound-effects/musical-scary-horror-theme-song-382733/
+    [15] Horror monsters eating. 2025. Pixabay. https://pixabay.com/sound-effects/horror-monsters-eating-295853/
 
-[13] Nature water dripping. 2025. Pixabay.
-    https://pixabay.com/sound-effects/nature-water-dripping-364450/
+    [16] Household fieldgutterdrainsewagerunningwater 01 mkh416. 2022. Pixabay. https://pixabay.com/sound-effects/household-fieldgutterdrainsewagerunningwater-01-mkh416-24852/
 
-[14] Film special effects whistle slide down 02. 2025. Pixabay.
-    https://pixabay.com/sound-effects/film-special-effects-whistle-slide-down-02-350715/
+    [17] Multiple Chemical Sensitivity. Hopkins Medicine. Retrieved from https://www.hopkinsmedicine.org/health/conditions-and-diseases/multiple-chemical-sensitivity
 
+    [18] Musical scary horror theme song. 2025. Pixabay. https://pixabay.com/sound-effects/musical-scary-horror-theme-song-382733/
+
+    [19] Nature water dripping. 2025. Pixabay. https://pixabay.com/sound-effects/nature-water-dripping-364450/
