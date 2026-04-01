@@ -118,6 +118,18 @@ let emptyHeartImg;
 // Damage tuning
 let wallDamage = 1;
 
+//timer
+let levelStartTime = 0;
+let levelEndTime = 0;
+let currentTime = 0;
+let finalTime = 0;
+
+//High score
+let bestTime = null;
+if (bestTime === null || finalTime < bestTime) {
+  bestTime = finalTime;
+}
+
 // Per-level settings
 const LEVEL_SETTINGS = {
   1: {
