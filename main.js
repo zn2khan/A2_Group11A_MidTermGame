@@ -2,10 +2,9 @@
  * 1) PRELOAD
  ************************************************************/
 function preload() {
-  // Health bars
-  health3 = loadImage("assets/images/fullHealthBar.png");
-  health2 = loadImage("assets/images/2LifeHealthBar.png");
-  health1 = loadImage("assets/images/1LifeHealthBar.png");
+// Heart HUD
+fullHeartImg = loadImage("assets/images/full_heart.png");
+emptyHeartImg = loadImage("assets/images/empty_heart.png");
 
   // Player animations
   sprites.downRun = loadImage("assets/images/down_run_animation.png");

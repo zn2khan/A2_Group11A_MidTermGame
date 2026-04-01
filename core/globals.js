@@ -112,9 +112,8 @@ let health = 3;
 let maxHealth = 3;
 let damageCooldown = 0;
 
-let health3;
-let health2;
-let health1;
+let fullHeartImg;
+let emptyHeartImg;
 
 // Damage tuning
 let wallDamage = 1;
