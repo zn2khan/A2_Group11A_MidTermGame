@@ -1,15 +1,16 @@
 /************************************************************
  * 7) GAME LOOP
  ************************************************************/
-function drawGame() {
-  updatePlayer();
-  updateAnimation();
-  updateMonsterAnimation();
-  updateCamera();
-  updateEnemies();
-  updateGasHazards();
-  handleGasDamage();
-  updateFootstepSound();
+  function drawGame() {
+    updateFreezeEffect();
+    updatePlayer();
+    updateAnimation();
+    updateMonsterAnimation();
+    updateCamera();
+    updateEnemies();
+    updateGasHazards();
+    handleGasDamage();
+    updateFootstepSound();
 
   if (health <= 0) {
     triggerGameOver();
@@ -57,7 +58,15 @@ function drawGame() {
   }
 
   drawHealthBar();
+  if (freezeEffect.active) {
+    const pulseBlur =
+      freezeEffect.blurAmount + 0.75 * sin(frameCount * 0.18);
+
+    filter(BLUR, max(1, pulseBlur));
+    drawFreezeOverlay();
+  }
 }
+
 
 function drawPlayer() {
   const anim = getCurrentAnimation();
@@ -114,6 +123,56 @@ function drawGoal() {
     fill(0, 200, 100);
     rect(goal.x, goal.y, goal.w, goal.h);
   }
+}
+
+function updateFreezeEffect() {
+  if (freezeEffect.active) {
+    freezeEffect.activeTimer--;
+
+    if (freezeEffect.activeTimer <= 0) {
+      endFreezeEffect();
+    }
+    return;
+  }
+
+  freezeEffect.cycleTimer++;
+
+  if (freezeEffect.cycleTimer >= freezeEffect.triggerAfter) {
+    startFreezeEffect();
+  }
+}
+
+function startFreezeEffect() {
+  freezeEffect.active = true;
+  freezeEffect.activeTimer = freezeEffect.activeDuration;
+
+  player.moving = false;
+  player.frameIndex = 0;
+  player.frameCounter = 0;
+  player.currentAnimName = "";
+}
+
+function endFreezeEffect() {
+  freezeEffect.active = false;
+  freezeEffect.activeTimer = 0;
+  freezeEffect.cycleTimer = 0;
+
+  player.frameIndex = 0;
+  player.frameCounter = 0;
+  player.currentAnimName = "";
+}
+
+function drawFreezeOverlay() {
+  push();
+  noStroke();
+
+  fill(190, 210, 255, 25);
+  rect(0, 0, width, height);
+
+  fill(30, 40, 60, 45);
+  rect(0, 0, width, height);
+
+  pop();
 }
 
 /************************************************************

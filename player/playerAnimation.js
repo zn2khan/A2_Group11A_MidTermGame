@@ -3,9 +3,7 @@
  ************************************************************/
 function updateAnimation() {
   const anim = getCurrentAnimation();
-  const animName = player.moving
-    ? `${player.direction}_run`
-    : `${player.direction}_idle`;
+  const animName = anim.name;
 
   if (animName !== player.currentAnimName) {
     player.currentAnimName = animName;
@@ -15,12 +13,20 @@ function updateAnimation() {
 
   player.frameCounter++;
 
-  if (player.frameCounter >= player.frameDelay) {
-    player.frameCounter = 0;
-    player.frameIndex++;
+  const frameDelay = anim.frameDelay ?? player.frameDelay;
 
-    if (player.frameIndex >= anim.frames) {
-      player.frameIndex = 0;
+  if (player.frameCounter >= frameDelay) {
+    player.frameCounter = 0;
+
+    if (anim.loop === false) {
+      if (player.frameIndex < anim.frames - 1) {
+        player.frameIndex++;
+      }
+    } else {
+      player.frameIndex++;
+      if (player.frameIndex >= anim.frames) {
+        player.frameIndex = 0;
+      }
     }
   }
 }
@@ -29,33 +35,118 @@ function updateAnimation() {
  * 14) GET CURRENT PLAYER ANIMATION
  ************************************************************/
 function getCurrentAnimation() {
+  // Special frozen / stunned animation
+  if (freezeEffect.active && sprites.freeze) {
+    return {
+      name: "freeze",
+      sheet: sprites.freeze,
+      frames: 12,
+      frameW: 18,
+      frameH: 29,
+      frameDelay: 6,
+      loop: false,
+    };
+  }
+
   if (player.moving) {
     if (player.direction === "down") {
-      return { sheet: sprites.downRun, frames: 8, frameW: 18, frameH: 29 };
+      return {
+        name: "down_run",
+        sheet: sprites.downRun,
+        frames: 8,
+        frameW: 18,
+        frameH: 29,
+        frameDelay: 8,
+        loop: true,
+      };
     }
     if (player.direction === "up") {
-      return { sheet: sprites.upRun, frames: 8, frameW: 18, frameH: 29 };
+      return {
+        name: "up_run",
+        sheet: sprites.upRun,
+        frames: 8,
+        frameW: 18,
+        frameH: 29,
+        frameDelay: 8,
+        loop: true,
+      };
     }
     if (player.direction === "left") {
-      return { sheet: sprites.leftRun, frames: 8, frameW: 18, frameH: 29 };
+      return {
+        name: "left_run",
+        sheet: sprites.leftRun,
+        frames: 8,
+        frameW: 18,
+        frameH: 29,
+        frameDelay: 8,
+        loop: true,
+      };
     }
     if (player.direction === "right") {
-      return { sheet: sprites.rightRun, frames: 8, frameW: 18, frameH: 29 };
+      return {
+        name: "right_run",
+        sheet: sprites.rightRun,
+        frames: 8,
+        frameW: 18,
+        frameH: 29,
+        frameDelay: 8,
+        loop: true,
+      };
     }
   } else {
     if (player.direction === "down") {
-      return { sheet: sprites.idleDown, frames: 7, frameW: 18, frameH: 29 };
+      return {
+        name: "down_idle",
+        sheet: sprites.idleDown,
+        frames: 7,
+        frameW: 18,
+        frameH: 29,
+        frameDelay: 8,
+        loop: true,
+      };
     }
     if (player.direction === "up") {
-      return { sheet: sprites.idleUp, frames: 7, frameW: 18, frameH: 29 };
+      return {
+        name: "up_idle",
+        sheet: sprites.idleUp,
+        frames: 7,
+        frameW: 18,
+        frameH: 29,
+        frameDelay: 8,
+        loop: true,
+      };
     }
     if (player.direction === "left") {
-      return { sheet: sprites.idleLeft, frames: 2, frameW: 18, frameH: 29 };
+      return {
+        name: "left_idle",
+        sheet: sprites.idleLeft,
+        frames: 2,
+        frameW: 18,
+        frameH: 29,
+        frameDelay: 8,
+        loop: true,
+      };
     }
     if (player.direction === "right") {
-      return { sheet: sprites.idleRight, frames: 2, frameW: 18, frameH: 29 };
+      return {
+        name: "right_idle",
+        sheet: sprites.idleRight,
+        frames: 2,
+        frameW: 18,
+        frameH: 29,
+        frameDelay: 8,
+        loop: true,
+      };
     }
   }
 
-  return { sheet: sprites.idleDown, frames: 7, frameW: 18, frameH: 29 };
+  return {
+    name: "down_idle",
+    sheet: sprites.idleDown,
+    frames: 7,
+    frameW: 18,
+    frameH: 29,
+    frameDelay: 8,
+    loop: true,
+  };
 }

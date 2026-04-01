@@ -16,6 +16,7 @@ emptyHeartImg = loadImage("assets/images/empty_heart.png");
   sprites.idleUp = loadImage("assets/images/idle_animation_backside.png");
   sprites.idleLeft = loadImage("assets/images/idle_animation_L.png");
   sprites.idleRight = loadImage("assets/images/idle_animation_R.png");
+  sprites.freeze = loadImage("assets/images/damage_animation.png");
 
   // Screen / environment images
   startBg = loadImage("assets/images/GBDA302_Background.png");
