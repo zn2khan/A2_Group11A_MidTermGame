@@ -23,6 +23,7 @@ emptyHeartImg = loadImage("assets/images/empty_heart.png");
   gameBg = loadImage("assets/images/background.png");
   pipeImg = loadImage("assets/images/pipe.png");
   doorImg = loadImage("assets/images/door.png");
+  burstPipeSheet = loadImage("assets/images/pipes-bursting-spritesheet.png");
 
   // Placeholder gas gif path
   gasGif = null;

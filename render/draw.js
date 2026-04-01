@@ -111,8 +111,8 @@ function drawEnemies() {
 
 function drawGoal() {
   if (doorImg) {
-    const drawW = 110;
-    const drawH = 110;
+    const drawW = 60;
+    const drawH = 80;
 
     const dx = goal.x + goal.w / 2 - drawW / 2;
     const dy = goal.y + goal.h / 2 - drawH / 2;
