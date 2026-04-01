@@ -124,7 +124,7 @@ function updateFootstepSound() {
 
 function triggerVictory() {
   stopAllSounds();
-  endMessage = "You escaped! 🎉";
+  endMessage = "You escaped all 3 levels! 🎉";
   endSoundType = "victory";
   scene = SCENES.END;
 }
@@ -137,11 +137,9 @@ function triggerGameOver() {
 }
 
 /************************************************************
- * 20) RESTART
+ * LEVEL LOADING
  ************************************************************/
-function restartGame() {
-  stopAllSounds();
-
+function loadCurrentLevel() {
   player.x = 120;
   player.y = 120;
   player.direction = "down";
@@ -153,15 +151,28 @@ function restartGame() {
   monsterFrameIndex = 0;
   monsterFrameCounter = 0;
 
-  health = maxHealth;
   damageCooldown = 0;
   damageText = "";
   damageTextTimer = 0;
+
+  buildMaze();
+  buildGasHazards();
+  spawnEnemies();
+}
+
+/************************************************************
+ * 20) RESTART
+ ************************************************************/
+function restartGame() {
+  stopAllSounds();
+
+  currentLevel = 1;
+  health = maxHealth;
   endMessage = "";
   endSoundType = "";
   lastMonsterSoundTime = -9999;
 
-  spawnEnemies();
+  loadCurrentLevel();
   scene = SCENES.GAME;
 
   startFullGameMusic();

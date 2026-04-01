@@ -24,6 +24,9 @@ function preload() {
   pipeImg = loadImage("assets/images/pipe.png");
   doorImg = loadImage("assets/images/door.png");
 
+  // Placeholder gas gif path
+  gasGif = null;
+
   // Enemy + cutscene
   monsterSheet = loadImage("assets/images/monster.png");
   cutsceneGif = loadImage("assets/images/cutscene.gif");
@@ -53,8 +56,7 @@ function setup() {
   noSmooth();
   textFont("monospace");
 
-  buildMaze();
-  spawnEnemies();
+  loadCurrentLevel();
 }
 
 /************************************************************

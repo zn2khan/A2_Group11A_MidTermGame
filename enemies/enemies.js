@@ -4,7 +4,7 @@
 function spawnEnemies() {
   enemies = [];
 
-  const enemyCount = 8;
+  const enemyCount = getCurrentLevelSettings().enemyCount;
   const maxAttemptsPerEnemy = 200;
 
   for (let i = 0; i < enemyCount; i++) {
@@ -16,6 +16,7 @@ function spawnEnemies() {
       const r = 14;
 
       if (circleHitsAnyWall(x, y, r)) continue;
+      if (gasHitsPlayer(x, y, r)) continue;
       if (dist(x, y, 120, 120) < 140) continue;
 
       if (
@@ -46,12 +47,12 @@ function spawnEnemies() {
       else vy = -1;
 
       enemies.push({
-        x: x,
-        y: y,
-        r: r,
-        vx: vx,
-        vy: vy,
-        speed: random(1.5, 2.5),
+        x,
+        y,
+        r,
+        vx,
+        vy,
+        speed: random(1.5, 2.5 + currentLevel * 0.2),
       });
 
       placed = true;

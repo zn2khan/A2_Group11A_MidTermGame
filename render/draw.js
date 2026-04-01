@@ -7,6 +7,8 @@ function drawGame() {
   updateMonsterAnimation();
   updateCamera();
   updateEnemies();
+  updateGasHazards();
+  handleGasDamage();
   updateFootstepSound();
 
   if (health <= 0) {
@@ -25,7 +27,7 @@ function drawGame() {
       player.r,
     )
   ) {
-    triggerVictory();
+    advanceLevel();
     return;
   }
 
@@ -36,6 +38,7 @@ function drawGame() {
   drawWorldBounds();
   drawGoal();
   drawMaze();
+  drawGasHazards();
   drawEnemies();
   drawPlayer();
 
@@ -108,6 +111,18 @@ function drawGoal() {
     noStroke();
     fill(0, 200, 100);
     rect(goal.x, goal.y, goal.w, goal.h);
+  }
+}
+
+/************************************************************
+ * LEVEL ADVANCEMENT
+ ************************************************************/
+function advanceLevel() {
+  if (currentLevel < TOTAL_LEVELS) {
+    currentLevel++;
+    loadCurrentLevel();
+  } else {
+    triggerVictory();
   }
 }
 

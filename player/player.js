@@ -27,17 +27,27 @@ function updatePlayer() {
   player.moving = dx !== 0 || dy !== 0;
 
   if (dx !== 0) {
-    player.x += dx;
-    if (circleHitsAnyWall(player.x, player.y, player.r)) {
-      player.x -= dx;
+    const nextX = player.x + dx;
+
+    if (
+      !circleHitsAnyWall(nextX, player.y, player.r) &&
+      !canMoveIntoGas(nextX, player.y, player.r)
+    ) {
+      player.x = nextX;
+    } else if (circleHitsAnyWall(nextX, player.y, player.r)) {
       applyDamage(wallDamage);
     }
   }
 
   if (dy !== 0) {
-    player.y += dy;
-    if (circleHitsAnyWall(player.x, player.y, player.r)) {
-      player.y -= dy;
+    const nextY = player.y + dy;
+
+    if (
+      !circleHitsAnyWall(player.x, nextY, player.r) &&
+      !canMoveIntoGas(player.x, nextY, player.r)
+    ) {
+      player.y = nextY;
+    } else if (circleHitsAnyWall(player.x, nextY, player.r)) {
       applyDamage(wallDamage);
     }
   }
