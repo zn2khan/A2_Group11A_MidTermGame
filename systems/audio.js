@@ -157,8 +157,9 @@ function loadCurrentLevel() {
   damageText = "";
   damageTextTimer = 0;
 
-  buildMaze();
-  buildGasHazards();
+ buildMaze();
+buildGasHazards();
+buildKeys();
   spawnEnemies();
 }
 

@@ -2,9 +2,9 @@
  * 1) PRELOAD
  ************************************************************/
 function preload() {
-// Heart HUD
-fullHeartImg = loadImage("assets/images/full_heart.png");
-emptyHeartImg = loadImage("assets/images/empty_heart.png");
+  // Heart HUD
+  fullHeartImg = loadImage("assets/images/full_heart.png");
+  emptyHeartImg = loadImage("assets/images/empty_heart.png");
 
   // Player animations
   sprites.downRun = loadImage("assets/images/down_run_animation.png");
@@ -24,6 +24,7 @@ emptyHeartImg = loadImage("assets/images/empty_heart.png");
   pipeImg = loadImage("assets/images/pipe.png");
   doorImg = loadImage("assets/images/door.png");
   burstPipeSheet = loadImage("assets/images/pipes-bursting-spritesheet.png");
+  keySheet = loadImage("assets/images/key_spritesheet.png");
 
   // Placeholder gas gif path
   gasGif = null;

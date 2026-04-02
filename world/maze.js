@@ -4,6 +4,7 @@
 let keys = [];
 let collectedKeys = 0;
 const KEYS_PER_LEVEL = 1;
+let keysBuiltForLevel = -1;
 
 function buildMaze() {
   walls = [];
@@ -111,6 +112,14 @@ function drawPipeWall(wall) {
 /************************************************************
  * KEYS
  ************************************************************/
+function ensureKeysForCurrentLevel() {
+  if (keysBuiltForLevel === currentLevel) return;
+  if (walls.length === 0) return;
+
+  buildKeys();
+  keysBuiltForLevel = currentLevel;
+}
+
 function buildKeys() {
   keys = [];
   collectedKeys = 0;
@@ -124,10 +133,10 @@ function buildKeys() {
 }
 
 function createRandomKey() {
-  const keyR = 14;
-  const padding = 60;
+  const keyR = 20;
+  const padding = 80;
 
-  for (let tries = 0; tries < 500; tries++) {
+  for (let tries = 0; tries < 600; tries++) {
     const x = random(padding, WORLD_W - padding);
     const y = random(padding, WORLD_H - padding);
 
@@ -149,19 +158,16 @@ function isValidKeySpot(x, y, r) {
   if (circleHitsAnyWall(x, y, r + 10)) return false;
 
   for (const g of gasHazards) {
-    if (circleRectCollision(x, y, r + 12, g.x, g.y, g.w, g.h)) {
+    if (circleRectCollision(x, y, r + 14, g.x, g.y, g.w, g.h)) {
       return false;
     }
   }
 
-  if (
-    goal &&
-    circleRectCollision(x, y, r + 20, goal.x, goal.y, goal.w, goal.h)
-  ) {
+  if (goal && circleRectCollision(x, y, r + 30, goal.x, goal.y, goal.w, goal.h)) {
     return false;
   }
 
-  if (player && dist(x, y, player.x, player.y) < 120) {
+  if (player && dist(x, y, player.x, player.y) < 140) {
     return false;
   }
 
@@ -183,18 +189,43 @@ function drawKeys() {
 }
 
 function drawKey(key) {
+  if (!keySheet) {
+    push();
+    translate(key.x, key.y);
+    stroke(130, 95, 0);
+    strokeWeight(3);
+    fill(255, 220, 40);
+    ellipse(0, 0, key.r * 1.5, key.r * 1.5);
+    line(key.r * 0.8, 0, key.r * 2.5, 0);
+    line(key.r * 1.7, 0, key.r * 1.7, key.r * 0.7);
+    line(key.r * 2.15, 0, key.r * 2.15, key.r * 0.5);
+    pop();
+    return;
+  }
+
+  const frameW = keySheet.width / KEY_COLS;
+  const frameH = keySheet.height / KEY_ROWS;
+  const frameIndex = floor(frameCount / KEY_FRAME_DELAY) % KEY_FRAMES;
+
+  const sx = (frameIndex % KEY_COLS) * frameW;
+  const sy = floor(frameIndex / KEY_COLS) * frameH;
+
+  const drawSize = 70;
+
   push();
-  translate(key.x, key.y);
-
-  stroke(130, 95, 0);
-  strokeWeight(3);
-  fill(255, 220, 40);
-
-  ellipse(0, 0, key.r * 1.5, key.r * 1.5);
-  line(key.r * 0.8, 0, key.r * 2.5, 0);
-  line(key.r * 1.7, 0, key.r * 1.7, key.r * 0.7);
-  line(key.r * 2.15, 0, key.r * 2.15, key.r * 0.5);
-
+  imageMode(CENTER);
+  image(
+    keySheet,
+    key.x,
+    key.y,
+    drawSize,
+    drawSize,
+    sx,
+    sy,
+    frameW,
+    frameH
+  );
+  imageMode(CORNER);
   pop();
 }
 
@@ -202,9 +233,13 @@ function handleKeyPickup() {
   for (const key of keys) {
     if (key.collected) continue;
 
-    if (dist(player.x, player.y, key.x, key.y) < player.r + key.r + 4) {
+    if (dist(player.x, player.y, key.x, key.y) < player.r + key.r + 6) {
       key.collected = true;
       collectedKeys++;
+
+      if (sndCoin) {
+        sndCoin.play();
+      }
     }
   }
 }
@@ -217,8 +252,9 @@ function drawKeyUI() {
   push();
   fill(255);
   noStroke();
-  textSize(24);
+  textSize(14);
   textAlign(LEFT, TOP);
-  text("Keys: " + collectedKeys + "/" + KEYS_PER_LEVEL, 30, 30);
+  textFont("monospace");
+  text("Keys: " + collectedKeys + "/" + KEYS_PER_LEVEL, 10, 74);
   pop();
 }
