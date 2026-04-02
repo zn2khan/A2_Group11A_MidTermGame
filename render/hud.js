@@ -4,7 +4,11 @@ function drawHUD() {
   textSize(12);
   textAlign(LEFT, TOP);
   textFont("monospace");
-  text("Reach the goal. Avoid walls, gas, and monsters.", 10, 10);
+  text(
+    "Collect the key and reach the door to escape. Avoid walls, gas, and monsters.",
+    10,
+    10,
+  );
   text("Press I for Instructions", 10, 26);
   text("Level: " + currentLevel + " / " + TOTAL_LEVELS, 10, 42);
 
