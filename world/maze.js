@@ -8,6 +8,8 @@ let keysBuiltForLevel = -1;
 
 function buildMaze() {
   walls = [];
+  wallVents = [];
+  gasHazards = [];
 
   // Outer border for all levels
   walls.push({ x: 0, y: 0, w: WORLD_W, h: 30 });
@@ -25,6 +27,8 @@ function buildMaze() {
     buildLevel3Maze();
     goal = { x: 1450, y: 820, w: 80, h: 80 };
   }
+
+  buildWallVents();
 }
 
 function buildLevel1Maze() {
@@ -58,10 +62,279 @@ function buildLevel3Maze() {
   walls.push({ x: 1180, y: 720, w: 250, h: 30 });
 }
 
+/************************************************************
+ * WALL VENTS
+ ************************************************************/
+function buildWallVents() {
+  const count = VENT_COUNT_BY_LEVEL[currentLevel] || 3;
+
+  const candidates = walls.filter((w) => {
+    const isOuterBorder =
+      (w.x === 0 && w.w === WORLD_W) ||
+      (w.y === 0 && w.h === WORLD_H) ||
+      (w.x === WORLD_W - 30) ||
+      (w.y === WORLD_H - 30);
+
+    return !isOuterBorder;
+  });
+
+  shuffle(candidates, true);
+
+  for (let i = 0; i < min(count, candidates.length); i++) {
+    const wall = candidates[i];
+    const vent = createVentOnWall(wall);
+    if (vent) {
+      wallVents.push(vent);
+    }
+  }
+}
+
+function createVentOnWall(wall) {
+  const horizontal = wall.w > wall.h;
+  const side = horizontal
+    ? (random() < 0.5 ? "up" : "down")
+    : (random() < 0.5 ? "left" : "right");
+
+  let cx, cy;
+
+  if (horizontal) {
+    cx = random(wall.x + 25, wall.x + wall.w - 25);
+    cy = side === "up" ? wall.y : wall.y + wall.h;
+  } else {
+    cx = side === "left" ? wall.x : wall.x + wall.w;
+    cy = random(wall.y + 25, wall.y + wall.h - 25);
+  }
+
+  return {
+    wall,
+    side,
+    cx,
+    cy,
+    active: false,
+    timer: floor(random(VENT_INACTIVE_MIN, VENT_INACTIVE_MAX)),
+    activeDuration: floor(random(VENT_ACTIVE_MIN, VENT_ACTIVE_MAX)),
+    burstLength: 0,
+    damageTimer: 0,
+  };
+}
+
+function updateWallVents() {
+  for (const v of wallVents) {
+    v.timer--;
+
+    if (!v.active) {
+      if (v.timer <= 0) {
+        v.active = true;
+        v.timer = v.activeDuration;
+        v.burstLength = 0;
+        v.damageTimer = 0;
+      }
+    } else {
+      v.damageTimer++;
+      v.burstLength = min(v.burstLength + VENT_GROW_SPEED, VENT_MAX_LENGTH);
+
+      if (v.timer <= 0) {
+        v.active = false;
+        v.timer = floor(random(VENT_INACTIVE_MIN, VENT_INACTIVE_MAX));
+        v.burstLength = 0;
+        v.damageTimer = 0;
+      }
+    }
+  }
+}
+
+function getWallVentHitbox(v) {
+  if (!v.active) {
+    return { x: 0, y: 0, w: 0, h: 0 };
+  }
+
+  if (v.side === "up") {
+    return {
+      x: v.cx - VENT_THICKNESS / 2,
+      y: v.cy - v.burstLength,
+      w: VENT_THICKNESS,
+      h: v.burstLength,
+    };
+  }
+
+  if (v.side === "down") {
+    return {
+      x: v.cx - VENT_THICKNESS / 2,
+      y: v.cy,
+      w: VENT_THICKNESS,
+      h: v.burstLength,
+    };
+  }
+
+  if (v.side === "left") {
+    return {
+      x: v.cx - v.burstLength,
+      y: v.cy - VENT_THICKNESS / 2,
+      w: v.burstLength,
+      h: VENT_THICKNESS,
+    };
+  }
+
+  return {
+    x: v.cx,
+    y: v.cy - VENT_THICKNESS / 2,
+    w: v.burstLength,
+    h: VENT_THICKNESS,
+  };
+}
+
+function handleWallVentDamage() {
+  for (const v of wallVents) {
+    if (!v.active) continue;
+
+    const hit = getWallVentHitbox(v);
+
+    if (
+      circleRectCollision(
+        player.x,
+        player.y,
+        player.r,
+        hit.x,
+        hit.y,
+        hit.w,
+        hit.h
+      )
+    ) {
+      if (v.damageTimer % 18 === 0) {
+        applyDamage(VENT_DAMAGE, " (Steam Burst!)");
+      }
+    }
+  }
+}
+
+function drawWallVents() {
+  for (const v of wallVents) {
+    drawWallVentNozzle(v);
+
+    if (v.active) {
+      drawWallVentBurst(v);
+    }
+  }
+}
+
+function drawWallVentNozzle(v) {
+  push();
+  noStroke();
+  fill(38, 39, 27);
+
+  if (v.side === "up") {
+    rect(v.cx - VENT_NOZZLE_W / 2, v.cy - 4, VENT_NOZZLE_W, 4);
+  } else if (v.side === "down") {
+    rect(v.cx - VENT_NOZZLE_W / 2, v.cy, VENT_NOZZLE_W, 4);
+  } else if (v.side === "left") {
+    rect(v.cx - 4, v.cy - VENT_NOZZLE_H / 2, 4, VENT_NOZZLE_H);
+  } else if (v.side === "right") {
+    rect(v.cx, v.cy - VENT_NOZZLE_H / 2, 4, VENT_NOZZLE_H);
+  }
+
+  pop();
+}
+
+function drawWallVentBurst(v) {
+  const hit = getWallVentHitbox(v);
+
+  if (!pipeBurstImg) {
+    push();
+    noStroke();
+    fill(88, 104, 74);
+    rect(hit.x, hit.y, hit.w, hit.h);
+    pop();
+    return;
+  }
+
+  const frameIndex =
+    floor(frameCount / PIPE_BURST_FRAME_DELAY) % PIPE_BURST_FRAMES;
+
+  const sx = frameIndex * PIPE_BURST_FRAME_W;
+  const sy = 0;
+
+  push();
+
+  if (v.side === "up") {
+    image(
+      pipeBurstImg,
+      v.cx - hit.w / 2,
+      hit.y,
+      hit.w,
+      hit.h,
+      sx,
+      sy,
+      PIPE_BURST_FRAME_W,
+      PIPE_BURST_FRAME_H
+    );
+  } else if (v.side === "down") {
+    push();
+    translate(v.cx, v.cy + hit.h / 2);
+    rotate(PI);
+    imageMode(CENTER);
+    image(
+      pipeBurstImg,
+      0,
+      0,
+      hit.w,
+      hit.h,
+      sx,
+      sy,
+      PIPE_BURST_FRAME_W,
+      PIPE_BURST_FRAME_H
+    );
+    imageMode(CORNER);
+    pop();
+  } else if (v.side === "left") {
+    push();
+    translate(hit.x + hit.w / 2, v.cy);
+    rotate(-HALF_PI);
+    imageMode(CENTER);
+    image(
+      pipeBurstImg,
+      0,
+      0,
+      hit.h,
+      hit.w,
+      sx,
+      sy,
+      PIPE_BURST_FRAME_W,
+      PIPE_BURST_FRAME_H
+    );
+    imageMode(CORNER);
+    pop();
+  } else if (v.side === "right") {
+    push();
+    translate(hit.x + hit.w / 2, v.cy);
+    rotate(HALF_PI);
+    imageMode(CENTER);
+    image(
+      pipeBurstImg,
+      0,
+      0,
+      hit.h,
+      hit.w,
+      sx,
+      sy,
+      PIPE_BURST_FRAME_W,
+      PIPE_BURST_FRAME_H
+    );
+    imageMode(CORNER);
+    pop();
+  }
+
+  pop();
+}
+
+/************************************************************
+ * MAZE DRAWING
+ ************************************************************/
 function drawMaze() {
   for (const w of walls) {
     drawPipeWall(w);
   }
+
+  drawWallVents();
 }
 
 function drawPipeWall(wall) {
@@ -157,8 +430,14 @@ function createRandomKey() {
 function isValidKeySpot(x, y, r) {
   if (circleHitsAnyWall(x, y, r + 10)) return false;
 
-  for (const g of gasHazards) {
-    if (circleRectCollision(x, y, r + 14, g.x, g.y, g.w, g.h)) {
+  for (const v of wallVents) {
+    const hit = getWallVentHitbox({
+      ...v,
+      active: true,
+      burstLength: VENT_MAX_LENGTH,
+    });
+
+    if (circleRectCollision(x, y, r + 14, hit.x, hit.y, hit.w, hit.h)) {
       return false;
     }
   }

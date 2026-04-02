@@ -24,6 +24,7 @@ function preload() {
   pipeImg = loadImage("assets/images/pipe.png");
   doorImg = loadImage("assets/images/door.png");
   burstPipeSheet = loadImage("assets/images/pipes-bursting-spritesheet.png");
+  pipeBurstImg = loadImage("assets/images/pipe_burst.png");
   keySheet = loadImage("assets/images/key_spritesheet.png");
 
   // Placeholder gas gif path
