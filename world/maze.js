@@ -23,15 +23,11 @@ function buildMaze() {
 }
 
 function buildLevel1Maze() {
-  walls.push({ x: 100, y: 160, w: 720, h: 30 });
-  walls.push({ x: 100, y: 300, w: 520, h: 30 });
-  walls.push({ x: 260, y: 300, w: 30, h: 420 });
-  walls.push({ x: 460, y: 180, w: 30, h: 380 });
-  walls.push({ x: 540, y: 520, w: 520, h: 30 });
-  walls.push({ x: 860, y: 180, w: 30, h: 520 });
-  walls.push({ x: 1080, y: 700, w: 300, h: 30 });
-  walls.push({ x: 1180, y: 430, w: 30, h: 270 });
-  walls.push({ x: 640, y: 700, w: 320, h: 30 });
+  walls.push({ x: 100, y: 200, w: 600, h: 30 });
+  walls.push({ x: 300, y: 350, w: 30, h: 400 });
+  walls.push({ x: 500, y: 500, w: 500, h: 30 });
+  walls.push({ x: 900, y: 200, w: 30, h: 500 });
+  walls.push({ x: 1100, y: 700, w: 350, h: 30 });
 }
 
 function buildLevel2Maze() {
