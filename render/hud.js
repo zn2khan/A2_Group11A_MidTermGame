@@ -13,27 +13,22 @@ function drawHUD() {
  * 22) HEALTH BAR
  ************************************************************/
 function drawHealthBar() {
-  const heartW = 36;
-  const heartH = 30;
-  const spacing = 8;
+  const barWidth = 200;
+  const barHeight = 30;
+  const x = width - barWidth - 10;
+  const y = 1;
 
-  const totalWidth = maxHealth * heartW + (maxHealth - 1) * spacing;
-  const x = width - totalWidth - 12;
-  const y = 8;
-
-  for (let i = 0; i < maxHealth; i++) {
-    const heartX = x + i * (heartW + spacing);
-
-    if (i < health) {
-      image(fullHeartImg, heartX, y, heartW, heartH);
-    } else {
-      image(emptyHeartImg, heartX, y, heartW, heartH);
-    }
+  if (health === 3) {
+    image(health3, x, y, barWidth, barHeight);
+  } else if (health === 2) {
+    image(health2, x, y, barWidth, barHeight);
+  } else if (health === 1) {
+    image(health1, x, y, barWidth, barHeight);
   }
 
-  fill(255);
+  fill(0, 255, 0);
   noStroke();
   textSize(12);
   textFont("monospace");
-  text("Health", x, y + heartH + 8);
+  text("Health: lives player has left", x + 20, y + barHeight + 15);
 }
