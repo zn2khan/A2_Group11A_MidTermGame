@@ -20,8 +20,8 @@ let endSoundType = "";
 let lastMonsterSoundTime = -9999;
 
 // World settings
-const VIEW_W = 800;
-const VIEW_H = 500;
+let VIEW_W;
+let VIEW_H;
 const WORLD_W = 1600;
 const WORLD_H = 1000;
 

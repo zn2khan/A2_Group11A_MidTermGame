@@ -55,11 +55,19 @@ function preload() {
  * 2) SETUP
  ************************************************************/
 function setup() {
+  VIEW_W = windowWidth;
+  VIEW_H = windowHeight;
   createCanvas(VIEW_W, VIEW_H);
   noSmooth();
   textFont("monospace");
 
   loadCurrentLevel();
+}
+
+function windowResized() {
+  VIEW_W = windowWidth;
+  VIEW_H = windowHeight;
+  resizeCanvas(VIEW_W, VIEW_H);
 }
 
 /************************************************************
