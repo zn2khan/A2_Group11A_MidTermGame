@@ -85,7 +85,7 @@ let player = {
   moving: false,
 
   frameIndex: 0,
-  frameDelay: 10,
+  frameDelay: 8,
   frameCounter: 0,
   currentAnimName: "down_idle",
 };
@@ -129,16 +129,6 @@ let bestTime = null;
 if (bestTime === null || finalTime < bestTime) {
   bestTime = finalTime;
 }
-
-// Freeze / blur status effect
-let freezeEffect = {
-  active: false,
-  cycleTimer: 0,        // counts up until the effect triggers
-  triggerAfter: 60 * 12, // 12 seconds at 60 FPS
-  activeTimer: 0,
-  activeDuration: 60 * 3, // 3 seconds frozen
-  blurAmount: 2,
-};
 
 // Per-level settings
 const LEVEL_SETTINGS = {

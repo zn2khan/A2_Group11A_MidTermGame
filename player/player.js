@@ -2,11 +2,6 @@
  * 11) PLAYER MOVEMENT + COLLISION
  ************************************************************/
 function updatePlayer() {
-  if (freezeEffect.active) {
-    player.moving = false;
-    checkMonsterCollisions();
-    return;
-  }
   let dx = 0;
   let dy = 0;
 
