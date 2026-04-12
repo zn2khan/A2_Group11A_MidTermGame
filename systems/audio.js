@@ -140,8 +140,6 @@ function triggerGameOver() {
  * LEVEL LOADING
  ************************************************************/
 function loadCurrentLevel() {
-  levelStartTime = millis();
-
   player.x = 120;
   player.y = 120;
   player.direction = "down";

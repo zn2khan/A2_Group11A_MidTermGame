@@ -52,7 +52,7 @@ function drawInstructions() {
       "Press B to go back to the Start Screen\n" +
       "Press G to return to the game",
     40,
-    90
+    90,
   );
 }
 

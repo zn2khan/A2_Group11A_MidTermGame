@@ -24,11 +24,9 @@ function drawGame() {
       goal.h,
       player.x,
       player.y,
-      player.r
+      player.r,
     )
   ) {
-    finalTime = (millis() - levelStartTime) / 1000;
-
     advanceLevel();
     return;
   }
