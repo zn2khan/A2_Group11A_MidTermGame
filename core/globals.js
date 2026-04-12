@@ -44,7 +44,6 @@ let keySheet;
 let burstPipeSheet;
 let pipeBurstImg;
 
-
 const PIPE_BURST_FRAME_W = 8;
 const PIPE_BURST_FRAME_H = 21;
 const PIPE_BURST_FRAMES = 12;
@@ -90,7 +89,7 @@ let player = {
   x: 120,
   y: 120,
   r: 14,
-  speed: 3,
+  speed: 5,
 
   w: 18,
   h: 29,
