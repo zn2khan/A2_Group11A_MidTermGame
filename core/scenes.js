@@ -42,41 +42,17 @@ function drawInstructions() {
   textSize(22);
   text("INSTRUCTIONS", 40, 40);
 
-  fill(0, 255, 0);
-  textSize(17);
-  text("Player Controls:", 40, 80);
-  fill(255);
   textSize(15);
   text(
     "- Use WASD or Arrow Keys to move\n" +
-      "- Character only moves up, down, left, or right\n",
-    40,
-    110,
-  );
-
-  fill(0, 255, 0);
-  textSize(17);
-  text("Rules:", 40, 170);
-  fill(255);
-  textSize(15);
-  text(
-    "- Avoid walls (they're chemical hazards)\n" +
-      "- Avoid monsters in the maze\n",
-    40,
-    200,
-  );
-
-  fill(0, 255, 0);
-  textSize(17);
-  text("Goal:", 40, 260);
-  fill(255);
-  textSize(15);
-  text(
-    "- Collect the key and reach the door to win the level\n\n\n\n\n" +
+      "- Character only moves up, down, left, or right\n" +
+      "- Avoid walls (they're chemical hazards)\n" +
+      "- Avoid monsters in the maze\n" +
+      "- Reach the green goal zone to win\n\n" +
       "Press B to go back to the Start Screen\n" +
       "Press G to return to the game",
     40,
-    290,
+    90
   );
 }
 
