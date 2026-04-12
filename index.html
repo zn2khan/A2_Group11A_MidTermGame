@@ -1,46 +1,20 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Maze Escape</title>
-    <style>
-      body {
-        margin: 0;
-        background: #111;
-        color: #fff;
-        font-family: Arial, sans-serif;
-      }
-      canvas {
-        display: block;
-        margin: 0 auto;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- p5.js library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maze Escape</title>
+  <style>
+    body { margin: 0; background: #111; color: #fff; font-family: Arial, sans-serif; }
+    canvas { display: block; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <!-- p5.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
 
-    <!-- Your game code -->
-    <script src="core/globals.js"></script>
-
-    <script src="world/collision.js"></script>
-    <script src="world/maze.js"></script>
-
-    <script src="player/player.js"></script>
-    <script src="player/playerAnimation.js"></script>
-
-    <script src="enemies/enemies.js"></script>
-
-    <script src="systems/camera.js"></script>
-    <script src="systems/audio.js"></script>
-
-    <script src="render/draw.js"></script>
-    <script src="render/hud.js"></script>
-
-    <script src="core/scenes.js"></script>
-
-    <script src="main.js"></script>
-  </body>
+  <!-- Your game code -->
+  <script src="sketch.js"></script>
+</body>
 </html>
