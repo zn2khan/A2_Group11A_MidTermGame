@@ -8,10 +8,10 @@ function drawGame() {
   updateMonsterAnimation();
   updateCamera();
   updateEnemies();
+  updateGasHazards();
   ensureKeysForCurrentLevel();
   handleKeyPickup();
-  updateWallVents();
-  handleWallVentDamage();
+  handleGasDamage();
   updateFootstepSound();
 
   if (health <= 0) {
@@ -47,6 +47,7 @@ function drawGame() {
   drawWorldBounds();
   drawGoal();
   drawMaze();
+  drawGasHazards();
   drawKeys();
   drawEnemies();
   drawPlayer();
@@ -65,7 +66,6 @@ function drawGame() {
   }
 
   drawHealthBar();
-
   if (freezeEffect.active) {
     const pulseBlur =
       freezeEffect.blurAmount + 0.75 * sin(frameCount * 0.18);

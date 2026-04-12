@@ -42,13 +42,6 @@ let doorImg;
 let gasGif;
 let keySheet;
 let burstPipeSheet;
-let pipeBurstImg;
-
-
-const PIPE_BURST_FRAME_W = 8;
-const PIPE_BURST_FRAME_H = 21;
-const PIPE_BURST_FRAMES = 12;
-const PIPE_BURST_FRAME_DELAY = 16;
 
 // Sounds
 let sndBackground;
@@ -110,7 +103,6 @@ let cam = { x: 0, y: 0 };
 
 // Maze walls
 let walls = [];
-let wallVents = [];
 
 // Goal zone
 let goal = { x: 1450, y: 850, w: 80, h: 80 };
@@ -118,28 +110,10 @@ let goal = { x: 1450, y: 850, w: 80, h: 80 };
 // Enemies
 let enemies = [];
 
-// Old gas hazards kept empty / unused now
+// Gas hazards
 let gasHazards = [];
 const GAS_DAMAGE = 1;
-const GAS_BLOCKS_PLAYER = false;
-
-// Wall vent settings
-const VENT_DAMAGE = 1;
-const VENT_COUNT_BY_LEVEL = {
-  1: 3,
-  2: 4,
-  3: 5,
-};
-
-const VENT_NOZZLE_W = 40;
-const VENT_NOZZLE_H = 30;
-const VENT_THICKNESS = 50;
-const VENT_MAX_LENGTH = 150;
-const VENT_GROW_SPEED = 10;
-const VENT_ACTIVE_MIN = 36;
-const VENT_ACTIVE_MAX = 60;
-const VENT_INACTIVE_MIN = 80;
-const VENT_INACTIVE_MAX = 160;
+const GAS_BLOCKS_PLAYER = true;
 
 // Health
 let health = 3;
