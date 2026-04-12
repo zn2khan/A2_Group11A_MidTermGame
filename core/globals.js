@@ -40,8 +40,6 @@ let monsterSheet;
 let cutsceneGif;
 let doorImg;
 let gasGif;
-let keySheet;
-let burstPipeSheet;
 
 // Sounds
 let sndBackground;
@@ -71,12 +69,6 @@ const MONSTER_SCALE = 2;
 let monsterFrameIndex = 0;
 let monsterFrameCounter = 0;
 let monsterFrameDelay = 10;
-
-// Key animation settings
-const KEY_COLS = 4;
-const KEY_ROWS = 2;
-const KEY_FRAMES = 8;
-const KEY_FRAME_DELAY = 8;
 
 // Player
 let player = {
@@ -126,13 +118,13 @@ let emptyHeartImg;
 // Damage tuning
 let wallDamage = 1;
 
-// Timer
+//timer
 let levelStartTime = 0;
 let levelEndTime = 0;
 let currentTime = 0;
 let finalTime = 0;
 
-// High score
+//High score
 let bestTime = null;
 if (bestTime === null || finalTime < bestTime) {
   bestTime = finalTime;
@@ -141,10 +133,10 @@ if (bestTime === null || finalTime < bestTime) {
 // Freeze / blur status effect
 let freezeEffect = {
   active: false,
-  cycleTimer: 0,
-  triggerAfter: 60 * 12,
+  cycleTimer: 0,        // counts up until the effect triggers
+  triggerAfter: 60 * 12, // 12 seconds at 60 FPS
   activeTimer: 0,
-  activeDuration: 60 * 3,
+  activeDuration: 60 * 3, // 3 seconds frozen
   blurAmount: 2,
 };
 

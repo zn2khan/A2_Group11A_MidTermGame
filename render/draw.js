@@ -1,18 +1,16 @@
 /************************************************************
  * 7) GAME LOOP
  ************************************************************/
-function drawGame() {
-  updateFreezeEffect();
-  updatePlayer();
-  updateAnimation();
-  updateMonsterAnimation();
-  updateCamera();
-  updateEnemies();
-  updateGasHazards();
-  ensureKeysForCurrentLevel();
-  handleKeyPickup();
-  handleGasDamage();
-  updateFootstepSound();
+  function drawGame() {
+    updateFreezeEffect();
+    updatePlayer();
+    updateAnimation();
+    updateMonsterAnimation();
+    updateCamera();
+    updateEnemies();
+    updateGasHazards();
+    handleGasDamage();
+    updateFootstepSound();
 
   if (health <= 0) {
     triggerGameOver();
@@ -30,14 +28,10 @@ function drawGame() {
       player.r
     )
   ) {
-    if (hasAllKeys()) {
-      finalTime = (millis() - levelStartTime) / 1000;
-      advanceLevel();
-      return;
-    } else {
-      damageText = "Find the key first!";
-      damageTextTimer = 20;
-    }
+    finalTime = (millis() - levelStartTime) / 1000;
+
+    advanceLevel();
+    return;
   }
 
   push();
@@ -48,14 +42,12 @@ function drawGame() {
   drawGoal();
   drawMaze();
   drawGasHazards();
-  drawKeys();
   drawEnemies();
   drawPlayer();
 
   pop();
 
   drawHUD();
-  drawKeyUI();
 
   if (damageTextTimer > 0) {
     fill(255, 0, 0);
@@ -74,6 +66,7 @@ function drawGame() {
     drawFreezeOverlay();
   }
 }
+
 
 function drawPlayer() {
   const anim = getCurrentAnimation();
