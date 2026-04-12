@@ -25,10 +25,6 @@ const VIEW_H = 500;
 const WORLD_W = 1600;
 const WORLD_H = 1000;
 
-// Levels
-let currentLevel = 1;
-const TOTAL_LEVELS = 3;
-
 // Sprites
 let sprites = {};
 
@@ -39,7 +35,6 @@ let pipeImg;
 let monsterSheet;
 let cutsceneGif;
 let doorImg;
-let gasGif;
 
 // Sounds
 let sndBackground;
@@ -102,11 +97,6 @@ let goal = { x: 1450, y: 850, w: 80, h: 80 };
 // Enemies
 let enemies = [];
 
-// Gas hazards
-let gasHazards = [];
-const GAS_DAMAGE = 1;
-const GAS_BLOCKS_PLAYER = true;
-
 // Health
 let health = 3;
 let maxHealth = 3;
@@ -118,28 +108,3 @@ let health1;
 
 // Damage tuning
 let wallDamage = 1;
-
-// Per-level settings
-const LEVEL_SETTINGS = {
-  1: {
-    enemyCount: 5,
-    gasActiveDuration: 120,
-    gasInactiveMin: 140,
-    gasInactiveMax: 240,
-    gasDamageInterval: 40,
-  },
-  2: {
-    enemyCount: 7,
-    gasActiveDuration: 140,
-    gasInactiveMin: 80,
-    gasInactiveMax: 150,
-    gasDamageInterval: 28,
-  },
-  3: {
-    enemyCount: 9,
-    gasActiveDuration: 160,
-    gasInactiveMin: 45,
-    gasInactiveMax: 100,
-    gasDamageInterval: 18,
-  },
-};

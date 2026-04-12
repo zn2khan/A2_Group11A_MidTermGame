@@ -4,49 +4,16 @@
 function buildMaze() {
   walls = [];
 
-  // Outer border for all levels
   walls.push({ x: 0, y: 0, w: WORLD_W, h: 30 });
   walls.push({ x: 0, y: WORLD_H - 30, w: WORLD_W, h: 30 });
   walls.push({ x: 0, y: 0, w: 30, h: WORLD_H });
   walls.push({ x: WORLD_W - 30, y: 0, w: 30, h: WORLD_H });
 
-  if (currentLevel === 1) {
-    buildLevel1Maze();
-    goal = { x: 1450, y: 850, w: 80, h: 80 };
-  } else if (currentLevel === 2) {
-    buildLevel2Maze();
-    goal = { x: 1420, y: 120, w: 80, h: 80 };
-  } else if (currentLevel === 3) {
-    buildLevel3Maze();
-    goal = { x: 1450, y: 820, w: 80, h: 80 };
-  }
-}
-
-function buildLevel1Maze() {
   walls.push({ x: 100, y: 200, w: 600, h: 30 });
   walls.push({ x: 300, y: 350, w: 30, h: 400 });
   walls.push({ x: 500, y: 500, w: 500, h: 30 });
   walls.push({ x: 900, y: 200, w: 30, h: 500 });
   walls.push({ x: 1100, y: 700, w: 350, h: 30 });
-}
-
-function buildLevel2Maze() {
-  walls.push({ x: 150, y: 180, w: 800, h: 30 });
-  walls.push({ x: 200, y: 380, w: 30, h: 450 });
-  walls.push({ x: 420, y: 320, w: 600, h: 30 });
-  walls.push({ x: 760, y: 520, w: 30, h: 300 });
-  walls.push({ x: 980, y: 160, w: 30, h: 520 });
-  walls.push({ x: 1120, y: 680, w: 280, h: 30 });
-}
-
-function buildLevel3Maze() {
-  walls.push({ x: 120, y: 140, w: 900, h: 30 });
-  walls.push({ x: 220, y: 280, w: 30, h: 620 });
-  walls.push({ x: 380, y: 280, w: 700, h: 30 });
-  walls.push({ x: 520, y: 430, w: 30, h: 420 });
-  walls.push({ x: 700, y: 560, w: 650, h: 30 });
-  walls.push({ x: 1040, y: 150, w: 30, h: 500 });
-  walls.push({ x: 1180, y: 720, w: 250, h: 30 });
 }
 
 function drawMaze() {
